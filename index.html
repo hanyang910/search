@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>城市車旅場站資料搜尋工具</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 32px 16px; color: #1a202c; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 28px; }
+    header h1 { font-size: 26px; font-weight: 700; color: #1a202c; }
+    header p { color: #718096; margin-top: 6px; font-size: 14px; }
+
+    .card { background: white; border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .setup-card { background: #fff8e1; border: 1px solid #f6d860; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+    .setup-card h3 { font-size: 14px; font-weight: 700; color: #744210; margin-bottom: 10px; }
+    .setup-card label { font-size: 13px; color: #744210; display: block; margin-bottom: 5px; }
+    .setup-card input { width: 100%; padding: 9px 12px; border: 1px solid #e2d49a; border-radius: 8px; font-size: 13px; font-family: monospace; background: #fffdf0; color: #2d3748; outline: none; }
+    .setup-card input:focus { border-color: #d4a017; }
+    .setup-card .hint { font-size: 11px; color: #975a16; margin-top: 5px; }
+    .setup-row { display: flex; gap: 12px; margin-top: 12px; }
+    .setup-row > div { flex: 1; }
+
+    .btn { padding: 10px 20px; border: none; border-radius: 9px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .btn-primary { background: #3182ce; color: white; padding: 11px 24px; font-size: 15px; }
+    .btn-primary:hover { background: #2b6cb0; }
+    .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
+    .btn-green { background: #38a169; color: white; margin-top: 12px; width: 100%; padding: 10px; }
+    .btn-green:hover { background: #2f855a; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
+    .btn-outline { background: white; border: 1px solid #e2e8f0; color: #4a5568; }
+    .btn-outline:hover { background: #f7fafc; }
+
+    .search-row { display: flex; gap: 10px; align-items: center; }
+    .search-input { flex: 1; padding: 11px 16px; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: border-color 0.2s; color: #2d3748; }
+    .search-input:focus { border-color: #4299e1; }
+    .search-input::placeholder { color: #a0aec0; }
+    .search-input:disabled { background: #f7fafc; }
+
+    .status { margin-top: 12px; font-size: 13px; color: #718096; min-height: 18px; text-align: center; }
+    .status.error { color: #e53e3e; }
+    .status.success { color: #38a169; }
+
+    .col-selector { display: none; margin-top: 18px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .col-selector h4 { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .col-actions { display: flex; gap: 6px; }
+    .col-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+    .col-chip { display: flex; align-items: center; justify-content: center; padding: 7px 4px; border-radius: 8px; font-size: 12px; border: 1.5px solid #e2e8f0; background: white; cursor: pointer; transition: all 0.15s; user-select: none; color: #4a5568; text-align: center; line-height: 1.3; min-height: 40px; word-break: break-all; }
+    .col-chip.active { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; font-weight: 500; }
+    .col-chip:hover { border-color: #bee3f8; background: #f0f9ff; }
+    .col-chip.active:hover { background: #dbeafe; }
+
+    .results-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; display: none; }
+    .results-header { padding: 14px 22px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .results-header h3 { font-size: 14px; font-weight: 600; color: #2d3748; }
+    .count-badge { background: #ebf8ff; color: #2b6cb0; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { background: #f7fafc; padding: 9px 15px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    tbody tr:hover { background: #f7fafc; }
+    tbody td { padding: 9px 15px; border-bottom: 1px solid #f0f0f0; color: #2d3748; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; transition: background 0.1s; }
+    tbody td:hover { background: #ebf8ff; color: #2b6cb0; }
+    tbody tr:last-child td { border-bottom: none; }
+    mark { background: #fefcbf; color: #744210; border-radius: 2px; padding: 0 2px; }
+    .empty-state { text-align: center; padding: 40px; color: #a0aec0; }
+    .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+    .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #e2e8f0; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 彈出視窗 */
+    .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+    .popup-overlay.show { display: flex; }
+    .popup-box { background: white; border-radius: 14px; padding: 24px; max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+    .popup-label { font-size: 12px; font-weight: 600; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .popup-content { font-size: 15px; color: #1a202c; line-height: 1.6; word-break: break-all; background: #f7fafc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; min-height: 48px; }
+    .popup-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-copy { background: #3182ce; color: white; padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; }
+    .btn-copy:hover { background: #2b6cb0; }
+    .btn-copy.copied { background: #38a169; }
+    .btn-close-popup { background: #f7fafc; color: #4a5568; padding: 8px 18px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; }
+    .btn-close-popup:hover { background: #edf2f7; }
+    .click-hint { font-size: 11px; color: #a0aec0; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🚌 城市車旅場站資料搜尋工具</h1>
+    <p>快速搜尋 Google 試算表中的任何資料</p>
+  </header>
+
+  <div class="setup-card">
+    <h3>⚙️ 設定</h3>
+    <label>試算表 ID</label>
+    <input type="text" id="sheetId" value="1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY">
+    <div class="hint">從試算表網址複製：docs.google.com/spreadsheets/d/<strong>這裡的文字</strong>/edit</div>
+    <div class="setup-row">
+      <div>
+        <label style="margin-top:10px">工作表名稱（選填）</label>
+        <input type="text" id="sheetName" value="總表">
+      </div>
+      <div>
+        <label style="margin-top:10px">資料從第幾行開始</label>
+        <input type="number" id="startRow" value="2" min="1" style="font-family:inherit">
+        <div class="hint">有標題列填 2，沒有填 1</div>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="loadSheet()">載入試算表</button>
+  </div>
+
+  <div class="card">
+    <div class="col-selector" id="colSelector">
+      <h4>
+        顯示欄位（選好後再按搜尋）
+        <span class="col-actions">
+          <button class="btn btn-sm btn-outline" onclick="selectAll()">全選</button>
+          <button class="btn btn-sm btn-outline" onclick="selectNone()">全不選</button>
+        </span>
+      </h4>
+      <div class="col-grid" id="colGrid"></div>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="search-row">
+        <input class="search-input" type="text" id="keyword"
+          placeholder="輸入關鍵字搜尋..." onkeydown="if(event.key==='Enter') doSearch()" disabled>
+        <button class="btn btn-primary" id="searchBtn" onclick="doSearch()" disabled>搜尋</button>
+      </div>
+      <div class="status" id="status">請點「載入試算表」開始</div>
+    </div>
+  </div>
+
+  <div class="results-card" id="resultsCard">
+    <div class="results-header">
+      <h3>搜尋結果</h3>
+      <span class="count-badge" id="countBadge">0 筆</span>
+    </div>
+    <div class="table-wrap" id="tableWrap"></div>
+    <div class="click-hint">點擊任意欄位可查看完整內容並複製</div>
+  </div>
+</div>
+
+<!-- 彈出視窗 -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup-box">
+    <div class="popup-label" id="popupLabel"></div>
+    <div class="popup-content" id="popupContent"></div>
+    <div class="popup-actions">
+      <button class="btn-close-popup" onclick="closePopupDirect()">關閉</button>
+      <button class="btn-copy" id="copyBtn" onclick="copyContent()">複製</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DEFAULT_COLS = ['公司', '場地代號', '縣市', '區域', '淡大名稱', '場地地址', '派工保全'];
+  let allData = [], headers = [], activeHeaders = new Set();
+  let currentCopyText = '';
+
+  async function loadSheet() {
+    const id = document.getElementById('sheetId').value.trim();
+    if (!id) { setStatus('請輸入試算表 ID', 'error'); return; }
+    const sheetName = document.getElementById('sheetName').value.trim();
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv${sheetName ? '&sheet=' + encodeURIComponent(sheetName) : ''}`;
+    setStatus('<span class="spinner"></span>載入中...', '');
+    try {
+      const res = await fetch(csvUrl);
+      if (!res.ok) throw new Error('無法讀取試算表，請確認 ID 正確且共用設定為「知道連結的任何人可以查看」');
+      parseCSV(await res.text());
+    } catch (e) {
+      setStatus('❌ ' + e.message, 'error');
+    }
+  }
+
+  function parseCSV(text) {
+    const startRow = parseInt(document.getElementById('startRow').value) || 2;
+    const rows = [];
+    let current = '', inQuotes = false, row = [];
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+        if (inQuotes && text[i+1] === '"') { current += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (ch === ',' && !inQuotes) { row.push(current); current = ''; }
+      else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+        if (current || row.length) { row.push(current); rows.push(row); }
+        current = ''; row = [];
+        if (ch === '\r' && text[i+1] === '\n') i++;
+      } else current += ch;
+    }
+    if (current || row.length) { row.push(current); rows.push(row); }
+    if (!rows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
+
+    const rawHeaders = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
+    const validIndexes = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
+    headers = validIndexes.map(i => rawHeaders[i]);
+
+    allData = rows.slice(startRow - 1).map(r =>
+      headers.reduce((obj, h, idx) => {
+        obj[h] = (r[validIndexes[idx]] || '').replace(/^"|"$/g, '').trim();
+        return obj;
+      }, {})
+    );
+
+    activeHeaders = new Set(headers.filter(h => DEFAULT_COLS.includes(h)));
+    if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+
+    renderColChips();
+    setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個有效欄位）— 選好欄位後按搜尋`, 'success');
+    document.getElementById('keyword').disabled = false;
+    document.getElementById('searchBtn').disabled = false;
+    document.getElementById('colSelector').style.display = 'block';
+    document.getElementById('keyword').focus();
+  }
+
+  function renderColChips() {
+    const grid = document.getElementById('colGrid');
+    grid.innerHTML = '';
+    headers.forEach(h => {
+      const chip = document.createElement('div');
+      chip.className = 'col-chip' + (activeHeaders.has(h) ? ' active' : '');
+      chip.textContent = h;
+      chip.onclick = () => {
+        if (activeHeaders.has(h)) {
+          if (activeHeaders.size <= 1) return;
+          activeHeaders.delete(h);
+          chip.classList.remove('active');
+        } else {
+          activeHeaders.add(h);
+          chip.classList.add('active');
+        }
+      };
+      grid.appendChild(chip);
+    });
+  }
+
+  function selectAll() { activeHeaders = new Set(headers); renderColChips(); }
+  function selectNone() { activeHeaders = new Set([headers[0]]); renderColChips(); }
+
+  function doSearch() {
+    const kw = document.getElementById('keyword').value.trim();
+    const kwLower = kw.toLowerCase();
+    const found = kw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
+    showResults(found, kw);
+  }
+
+  function showResults(rows, kw) {
+    document.getElementById('resultsCard').style.display = 'block';
+    document.getElementById('countBadge').textContent = rows.length + ' 筆';
+    const visibleHeaders = headers.filter(h => activeHeaders.has(h));
+    const wrap = document.getElementById('tableWrap');
+    if (!rows.length) {
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(kw)}」的資料</p></div>`;
+      return;
+    }
+    let html = '<table><thead><tr>' + visibleHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') + '</tr></thead><tbody>';
+    rows.forEach(r => {
+      html += '<tr>' + visibleHeaders.map(h => {
+        const v = String(r[h] ?? '');
+        return `<td title="${escHtml(v)}" onclick="openPopup('${escAttr(h)}','${escAttr(v)}')">${highlight(v, kw)}</td>`;
+      }).join('') + '</tr>';
+    });
+    wrap.innerHTML = html + '</tbody></table>';
+    setStatus(`找到 ${rows.length} 筆符合「${escHtml(kw)}」的資料`, 'success');
+  }
+
+  function openPopup(label, content) {
+    currentCopyText = content;
+    document.getElementById('popupLabel').textContent = label;
+    document.getElementById('popupContent').textContent = content || '（空白）';
+    document.getElementById('copyBtn').textContent = '複製';
+    document.getElementById('copyBtn').classList.remove('copied');
+    document.getElementById('popupOverlay').classList.add('show');
+  }
+
+  function closePopup(e) {
+    if (e.target === document.getElementById('popupOverlay')) closePopupDirect();
+  }
+
+  function closePopupDirect() {
+    document.getElementById('popupOverlay').classList.remove('show');
+  }
+
+  function copyContent() {
+    navigator.clipboard.writeText(currentCopyText).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '已複製！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '複製';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function highlight(text, kw) {
+    if (!kw) return escHtml(text);
+    return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '<mark>' + m + '</mark>');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+  }
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.innerHTML = msg;
+    el.className = 'status ' + (type || '');
+  }
+</script>
+</body>
+</html>
