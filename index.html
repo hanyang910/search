@@ -67,7 +67,6 @@
     .legend-dot.done    { background: #eff6ff; border: 1px solid #bfdbfe; }
     .legend-dot.history { background: white;   border: 1px solid #e2e8f0; }
 
-    /* 每頁筆數 + 分頁控制 */
     .pagination-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-top: 1px solid #e2e8f0; background: #fafafa; }
     .per-page-group { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; }
     .per-page-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: all 0.15s; }
@@ -83,6 +82,8 @@
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: #f7fafc; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    thead th.sort-col { color: #2b6cb0; }
+    thead th.sort-col::after { content: ' ↓'; font-size: 11px; }
     tbody tr { transition: filter 0.1s; }
     tbody tr:hover { filter: brightness(0.96); }
     tbody tr.row-undone  td { background: #fefce8; }
@@ -214,6 +215,9 @@
     ],
   };
 
+  // 日期欄位名稱（依優先順序嘗試）
+  const DATE_COLS = ['日期/時間', '時間戳記', '日期', '時間'];
+
   let currentMode = 'station';
   let currentTabType = 'single';
   let currentGroup = '';
@@ -315,6 +319,29 @@
     return obj;
   }
 
+  // 找到資料中實際存在的日期欄位
+  function findDateCol(hdrs) {
+    return DATE_COLS.find(c => hdrs.includes(c)) || null;
+  }
+
+  // 解析日期字串為時間戳（支援多種格式）
+  function parseDate(str) {
+    if (!str) return 0;
+    // 嘗試直接解析
+    const d = new Date(str);
+    if (!isNaN(d)) return d.getTime();
+    // 嘗試 yyyy/MM/dd HH:mm:ss 格式
+    const m = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?/);
+    if (m) return new Date(m[1], m[2]-1, m[3], m[4]||0, m[5]||0, m[6]||0).getTime();
+    return 0;
+  }
+
+  // 對資料依日期欄位由新到舊排序
+  function sortByDate(data, dateCol) {
+    if (!dateCol) return data;
+    return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
+  }
+
   async function loadSingleSheet(sheetId, sheetName, defaultCols) {
     setStatus('<span class="spinner"></span>載入中...', '');
     try {
@@ -360,8 +387,13 @@
         Object.values(FUER_FIELD_MAP).forEach(dst => { if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst); });
       }
       headers = mergedHeaders;
+      // 彙總頁：先依日期排序，再依狀態分組
       const order = { undone: 0, done: 1, history: 2 };
-      allData = mergedData.sort((a, b) => order[a.__rowType] - order[b.__rowType]);
+      const dateCol = findDateCol(headers);
+      allData = mergedData
+        .sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]))
+        .sort((a, b) => order[a.__rowType] - order[b.__rowType]);
+
       if (isFuer) {
         activeHeaders = new Set(headers.filter(h => FUER_DEFAULT_COLS.includes(h)));
         if (activeHeaders.size === 0) activeHeaders = new Set(headers);
@@ -403,7 +435,12 @@
   function doSearch() {
     currentKw = document.getElementById('keyword').value.trim();
     const kwLower = currentKw.toLowerCase();
-    filteredData = currentKw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
+    const matched = currentKw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
+
+    // 依日期由新到舊排序（彙總頁已在載入時排序，這裡再確保單頁也排序）
+    const dateCol = findDateCol(headers);
+    filteredData = sortByDate(matched, dateCol);
+
     currentPage = 1;
     renderPage();
   }
@@ -428,6 +465,7 @@
     const start = (currentPage - 1) * perPage;
     const pageRows = filteredData.slice(start, start + perPage);
     const visibleHeaders = headers.filter(h => activeHeaders.has(h));
+    const dateCol = findDateCol(visibleHeaders);
     const wrap = document.getElementById('tableWrap');
 
     document.getElementById('resultsCard').style.display = 'block';
@@ -457,17 +495,17 @@
 
     const table = document.createElement('table');
     const thead = document.createElement('thead');
-    thead.innerHTML = '<tr>' + visibleHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') + '</tr>';
+    thead.innerHTML = '<tr>' + visibleHeaders.map(h =>
+      `<th class="${h === dateCol ? 'sort-col' : ''}">${escHtml(h)}</th>`
+    ).join('') + '</tr>';
     table.appendChild(thead);
     table.appendChild(tbody);
     wrap.innerHTML = '';
     wrap.appendChild(table);
 
-    // 分頁列
     document.getElementById('paginationBar').style.display = 'flex';
     document.getElementById('pageInfo').textContent = `第 ${start+1}–${Math.min(start+perPage, total)} 筆，共 ${total} 筆`;
 
-    // 頁碼按鈕（最多顯示5個）
     const nav = document.getElementById('pageNav');
     nav.innerHTML = '';
     const addBtn = (label, page, disabled, active) => {
@@ -478,7 +516,6 @@
       if (!disabled) b.onclick = () => goToPage(page);
       nav.appendChild(b);
     };
-
     addBtn('‹', currentPage - 1, currentPage === 1, false);
     let startP = Math.max(1, currentPage - 2);
     let endP = Math.min(totalPages, startP + 4);
