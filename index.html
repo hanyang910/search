@@ -27,7 +27,6 @@
     .sheet-tab.combined.active { background: #e9d8fd; border-color: #9f7aea; color: #553c9a; }
 
     .card { background: white; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; }
-
     .btn { padding: 10px 20px; border: none; border-radius: 9px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; }
     .btn-primary { background: #3182ce; color: white; width: 100%; padding: 12px; font-size: 15px; margin-top: 10px; }
     .btn-primary:hover { background: #2b6cb0; }
@@ -214,9 +213,8 @@
       { name: '中控報修(歷史留存)', type: 'history' },
     ],
   };
-
-  // 日期欄位名稱（依優先順序嘗試）
   const DATE_COLS = ['日期/時間', '時間戳記', '日期', '時間'];
+  const ROW_TYPE_ORDER = { undone: 0, done: 1, history: 2 };
 
   let currentMode = 'station';
   let currentTabType = 'single';
@@ -227,6 +225,58 @@
   let perPage = 30;
   let currentKw = '';
   let currentCopyText = '';
+  let isCombined = false;
+
+  // 解析中文 AM/PM 日期格式
+  // 支援：2026/4/19 上午 11:55:03、2026/4/19 下午 1:30:00、2026/04/19 14:30:00 等
+  function parseDate(str) {
+    if (!str) return 0;
+    str = str.trim();
+
+    // 含「上午」或「下午」的格式
+    const ampm = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(上午|下午)\s*(\d{1,2}):(\d{2}):(\d{2})/);
+    if (ampm) {
+      let [, y, mo, d, ap, h, mi, s] = ampm;
+      h = parseInt(h); mo = parseInt(mo) - 1;
+      if (ap === '下午' && h !== 12) h += 12;
+      if (ap === '上午' && h === 12) h = 0;
+      return new Date(y, mo, d, h, mi, s).getTime();
+    }
+
+    // 一般格式 yyyy/MM/dd HH:mm:ss
+    const normal = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
+    if (normal) {
+      const [, y, mo, d, h, mi, s] = normal;
+      return new Date(y, parseInt(mo)-1, d, h, mi, s||0).getTime();
+    }
+
+    // 只有日期 yyyy/MM/dd
+    const dateOnly = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if (dateOnly) {
+      const [, y, mo, d] = dateOnly;
+      return new Date(y, parseInt(mo)-1, d).getTime();
+    }
+
+    return 0;
+  }
+
+  function findDateCol(hdrs) {
+    return DATE_COLS.find(c => hdrs.includes(c)) || null;
+  }
+
+  // 排序：彙總頁先依狀態分組，組內依日期新到舊；一般頁只依日期新到舊
+  function sortData(data, dateCol, combined) {
+    if (combined) {
+      return [...data].sort((a, b) => {
+        const orderDiff = ROW_TYPE_ORDER[a.__rowType] - ROW_TYPE_ORDER[b.__rowType];
+        if (orderDiff !== 0) return orderDiff;
+        return parseDate(b[dateCol]) - parseDate(a[dateCol]);
+      });
+    } else {
+      if (!dateCol) return data;
+      return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
+    }
+  }
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -235,8 +285,10 @@
       currentTabType = tab.dataset.type;
       resetResults();
       if (currentTabType === 'single') {
+        isCombined = false;
         loadSingleSheet(SHEET_ID_REPAIR, tab.dataset.sheet, []);
       } else {
+        isCombined = true;
         currentGroup = tab.dataset.group;
         loadCombinedSheets(currentGroup);
       }
@@ -263,12 +315,14 @@
     document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
     resetResults();
     if (mode === 'station') {
+      isCombined = false;
       loadSingleSheet(SHEET_ID_STATION, '總表', STATION_DEFAULT_COLS);
     } else {
       const firstTab = document.querySelector('.sheet-tab');
       document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
       firstTab.classList.add('active');
       currentTabType = 'single';
+      isCombined = false;
       loadSingleSheet(SHEET_ID_REPAIR, firstTab.dataset.sheet, []);
     }
   }
@@ -319,29 +373,6 @@
     return obj;
   }
 
-  // 找到資料中實際存在的日期欄位
-  function findDateCol(hdrs) {
-    return DATE_COLS.find(c => hdrs.includes(c)) || null;
-  }
-
-  // 解析日期字串為時間戳（支援多種格式）
-  function parseDate(str) {
-    if (!str) return 0;
-    // 嘗試直接解析
-    const d = new Date(str);
-    if (!isNaN(d)) return d.getTime();
-    // 嘗試 yyyy/MM/dd HH:mm:ss 格式
-    const m = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?/);
-    if (m) return new Date(m[1], m[2]-1, m[3], m[4]||0, m[5]||0, m[6]||0).getTime();
-    return 0;
-  }
-
-  // 對資料依日期欄位由新到舊排序
-  function sortByDate(data, dateCol) {
-    if (!dateCol) return data;
-    return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
-  }
-
   async function loadSingleSheet(sheetId, sheetName, defaultCols) {
     setStatus('<span class="spinner"></span>載入中...', '');
     try {
@@ -387,13 +418,7 @@
         Object.values(FUER_FIELD_MAP).forEach(dst => { if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst); });
       }
       headers = mergedHeaders;
-      // 彙總頁：先依日期排序，再依狀態分組
-      const order = { undone: 0, done: 1, history: 2 };
-      const dateCol = findDateCol(headers);
-      allData = mergedData
-        .sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]))
-        .sort((a, b) => order[a.__rowType] - order[b.__rowType]);
-
+      allData = mergedData;
       if (isFuer) {
         activeHeaders = new Set(headers.filter(h => FUER_DEFAULT_COLS.includes(h)));
         if (activeHeaders.size === 0) activeHeaders = new Set(headers);
@@ -435,12 +460,11 @@
   function doSearch() {
     currentKw = document.getElementById('keyword').value.trim();
     const kwLower = currentKw.toLowerCase();
-    const matched = currentKw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
-
-    // 依日期由新到舊排序（彙總頁已在載入時排序，這裡再確保單頁也排序）
+    const matched = currentKw
+      ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower)))
+      : allData;
     const dateCol = findDateCol(headers);
-    filteredData = sortByDate(matched, dateCol);
-
+    filteredData = sortData(matched, dateCol, isCombined);
     currentPage = 1;
     renderPage();
   }
