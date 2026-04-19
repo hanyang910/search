@@ -63,17 +63,17 @@
     .legend { display: flex; gap: 8px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #718096; }
     .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
-    .legend-dot.undone { background: #fefce8; border: 1px solid #fde047; }
-    .legend-dot.done { background: #eff6ff; border: 1px solid #bfdbfe; }
-    .legend-dot.history { background: white; border: 1px solid #e2e8f0; }
+    .legend-dot.undone  { background: #fefce8; border: 1px solid #fde047; }
+    .legend-dot.done    { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .legend-dot.history { background: white;   border: 1px solid #e2e8f0; }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: #f7fafc; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
     tbody tr { transition: filter 0.1s; }
     tbody tr:hover { filter: brightness(0.96); }
-    tbody tr.row-undone td { background: #fefce8; }
-    tbody tr.row-done td { background: #eff6ff; }
+    tbody tr.row-undone  td { background: #fefce8; }
+    tbody tr.row-done    td { background: #eff6ff; }
     tbody tr.row-history td { background: white; }
     tbody td { padding: 9px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #2d3748; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
     tbody tr:last-child td { border-bottom: none; }
@@ -174,6 +174,21 @@
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'];
 
+  // 阜爾彙總：資料對應（來源欄位 → 目標欄位，若目標欄位無值則從來源補入）
+  const FUER_FIELD_MAP = {
+    '時間戳記': '日期/時間',
+    '場地代號': '場代',
+    '場站名稱': '場站',
+    '區域':     '地區',
+  };
+
+  // 阜爾彙總預設顯示欄位
+  const FUER_DEFAULT_COLS = [
+    '日期/時間','地區','場代','場站','問題描述','報修人',
+    '聯絡電話','回覆業主','回覆人','回覆內容',
+    'PASS','PASS人','PASS備註','處理人','處理結果&備註'
+  ];
+
   const COMBINED_SHEETS = {
     '阜爾': [
       { name: '阜爾報修(未完成)',   type: 'undone'  },
@@ -188,12 +203,11 @@
   };
 
   let currentMode = 'station';
-  let currentTabType = 'single'; // 'single' | 'combined'
+  let currentTabType = 'single';
   let currentGroup = '';
   let allData = [], headers = [], activeHeaders = new Set();
   let currentCopyText = '';
 
-  // 分頁標籤點擊
   document.querySelectorAll('.sheet-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
@@ -209,12 +223,10 @@
     });
   });
 
-  // 彈出視窗背景關閉
   document.getElementById('popupOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePopupDirect();
   });
 
-  // 表格點擊（事件委派）
   document.getElementById('tableWrap').addEventListener('click', function(e) {
     const td = e.target.closest('td');
     if (!td) return;
@@ -228,14 +240,11 @@
     document.querySelectorAll('.switch-btn').forEach((b, i) => {
       b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
     });
-    const repairTabs = document.getElementById('repairTabs');
-    repairTabs.classList.toggle('show', mode === 'repair');
+    document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
     resetResults();
-
     if (mode === 'station') {
       loadSingleSheet(SHEET_ID_STATION, '總表', STATION_DEFAULT_COLS);
     } else {
-      // 預設選第一個分頁
       const firstTab = document.querySelector('.sheet-tab');
       document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
       firstTab.classList.add('active');
@@ -281,6 +290,16 @@
     return rows;
   }
 
+  function applyFieldMap(obj, fieldMap) {
+    // 若目標欄位是空的，從來源欄位補入值
+    Object.entries(fieldMap).forEach(([src, dst]) => {
+      if ((!obj[dst] || obj[dst] === '') && obj[src]) {
+        obj[dst] = obj[src];
+      }
+    });
+    return obj;
+  }
+
   async function loadSingleSheet(sheetId, sheetName, defaultCols) {
     setStatus('<span class="spinner"></span>載入中...', '');
     try {
@@ -315,6 +334,8 @@
   async function loadCombinedSheets(group) {
     setStatus('<span class="spinner"></span>載入彙總資料中...', '');
     const sheets = COMBINED_SHEETS[group];
+    const isFuer = group === '阜爾';
+
     try {
       const results = await Promise.all(sheets.map(s => fetchCSV(SHEET_ID_REPAIR, s.name)));
       let mergedHeaders = [];
@@ -327,7 +348,6 @@
         const validIdx = rawH.map((h, j) => h ? j : -1).filter(j => j >= 0);
         const sheetHeaders = validIdx.map(j => rawH[j]);
 
-        // 合併欄位
         sheetHeaders.forEach(h => { if (!mergedHeaders.includes(h)) mergedHeaders.push(h); });
 
         const rowType = sheets[i].type;
@@ -336,16 +356,33 @@
           sheetHeaders.forEach((h, idx) => {
             obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim();
           });
+          // 阜爾彙總套用欄位對應
+          if (isFuer) applyFieldMap(obj, FUER_FIELD_MAP);
           mergedData.push(obj);
         });
       });
 
+      // 確保阜爾彙總的目標欄位都存在於 headers 中
+      if (isFuer) {
+        Object.values(FUER_FIELD_MAP).forEach(dst => {
+          if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst);
+        });
+      }
+
       headers = mergedHeaders;
+
       // 排序：未完成 → 當日完成 → 歷史留存
       const order = { undone: 0, done: 1, history: 2 };
       allData = mergedData.sort((a, b) => order[a.__rowType] - order[b.__rowType]);
 
-      activeHeaders = new Set(headers);
+      // 阜爾彙總預設顯示欄位；中控彙總全選
+      if (isFuer) {
+        activeHeaders = new Set(headers.filter(h => FUER_DEFAULT_COLS.includes(h)));
+        if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+      } else {
+        activeHeaders = new Set(headers);
+      }
+
       document.getElementById('legend').style.display = 'flex';
       finishLoad();
     } catch(e) {
@@ -407,11 +444,8 @@
     const tbody = document.createElement('tbody');
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      const rowType = r.__rowType;
-      if (rowType === 'undone') tr.classList.add('row-undone');
-      else if (rowType === 'done') tr.classList.add('row-done');
-      else tr.classList.add('row-history');
-
+      const rt = r.__rowType;
+      tr.classList.add(rt === 'undone' ? 'row-undone' : rt === 'done' ? 'row-done' : 'row-history');
       visibleHeaders.forEach(h => {
         const td = document.createElement('td');
         const v = String(r[h] ?? '');
@@ -430,7 +464,6 @@
     table.appendChild(tbody);
     wrap.innerHTML = '';
     wrap.appendChild(table);
-
     setStatus(`找到 ${rows.length} 筆符合「${escHtml(kw)}」的資料`, 'success');
   }
 
