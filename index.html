@@ -9,29 +9,29 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans TC', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 24px 12px; color: #1a202c; }
     .container { max-width: 900px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 24px; }
+    header { text-align: center; margin-bottom: 20px; }
     header h1 { font-size: 22px; font-weight: 700; color: #1a202c; }
-    header p { color: #718096; margin-top: 6px; font-size: 13px; }
+    header p { color: #718096; margin-top: 5px; font-size: 13px; }
+
+    /* 切換按鈕 */
+    .switcher { display: flex; gap: 8px; margin-bottom: 16px; background: white; border-radius: 12px; padding: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .switch-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; color: #718096; text-align: center; line-height: 1.4; }
+    .switch-btn.active { background: #3182ce; color: white; box-shadow: 0 2px 8px rgba(49,130,206,0.3); }
+    .switch-btn:not(.active):hover { background: #f0f4f8; color: #2d3748; }
+
+    /* 分頁選擇（報修系統用） */
+    .sheet-tabs { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .sheet-tabs.show { display: flex; }
+    .sheet-tab { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; transition: all 0.15s; white-space: nowrap; }
+    .sheet-tab.active { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; }
+    .sheet-tab:hover { border-color: #bee3f8; background: #f0f9ff; }
 
     .card { background: white; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; }
-    .setup-card { background: #fff8e1; border: 1px solid #f6d860; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .setup-card h3 { font-size: 13px; font-weight: 700; color: #744210; margin-bottom: 10px; }
-    .setup-card label { font-size: 12px; color: #744210; display: block; margin-bottom: 5px; }
-    .setup-card input { width: 100%; padding: 9px 12px; border: 1px solid #e2d49a; border-radius: 8px; font-size: 13px; font-family: monospace; background: #fffdf0; color: #2d3748; outline: none; }
-    .setup-card input:focus { border-color: #d4a017; }
-    .setup-card .hint { font-size: 11px; color: #975a16; margin-top: 5px; }
-    .setup-row { display: flex; gap: 10px; margin-top: 10px; }
-    .setup-row > div { flex: 1; }
-    @media (max-width: 480px) {
-      .setup-row { flex-direction: column; }
-    }
 
-    .btn { padding: 10px 20px; border: none; border-radius: 9px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .btn { padding: 10px 20px; border: none; border-radius: 9px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; }
     .btn-primary { background: #3182ce; color: white; width: 100%; padding: 12px; font-size: 15px; margin-top: 10px; }
     .btn-primary:hover { background: #2b6cb0; }
     .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
-    .btn-green { background: #38a169; color: white; margin-top: 12px; width: 100%; padding: 10px; }
-    .btn-green:hover { background: #2f855a; }
     .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
     .btn-outline { background: white; border: 1px solid #e2e8f0; color: #4a5568; }
     .btn-outline:hover { background: #f7fafc; }
@@ -49,9 +49,7 @@
     .col-selector h4 { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
     .col-actions { display: flex; gap: 6px; }
     .col-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
-    @media (max-width: 600px) {
-      .col-grid { grid-template-columns: repeat(4, 1fr); }
-    }
+    @media (max-width: 600px) { .col-grid { grid-template-columns: repeat(4, 1fr); } }
     .col-chip { display: flex; align-items: center; justify-content: center; padding: 7px 4px; border-radius: 8px; font-size: 12px; border: 1.5px solid #e2e8f0; background: white; cursor: pointer; transition: all 0.15s; user-select: none; color: #4a5568; text-align: center; line-height: 1.3; min-height: 40px; word-break: break-all; }
     .col-chip.active { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; font-weight: 500; }
     .col-chip:hover { border-color: #bee3f8; background: #f0f9ff; }
@@ -75,7 +73,6 @@
     .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #e2e8f0; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 彈出視窗 */
     .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
     .popup-overlay.show { display: flex; }
     .popup-box { background: white; border-radius: 14px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
@@ -96,23 +93,22 @@
     <p>快速搜尋 Google 試算表中的任何資料</p>
   </header>
 
-  <div class="setup-card">
-    <h3>⚙️ 設定</h3>
-    <label>試算表 ID</label>
-    <input type="text" id="sheetId" value="1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY">
-    <div class="hint">從試算表網址複製：docs.google.com/spreadsheets/d/<strong>這裡的文字</strong>/edit</div>
-    <div class="setup-row">
-      <div>
-        <label style="margin-top:10px">工作表名稱（選填）</label>
-        <input type="text" id="sheetName" value="總表">
-      </div>
-      <div>
-        <label style="margin-top:10px">資料從第幾行開始</label>
-        <input type="number" id="startRow" value="2" min="1" style="font-family:inherit">
-        <div class="hint">有標題列填 2，沒有填 1</div>
-      </div>
-    </div>
-    <button class="btn btn-green" onclick="loadSheet()">載入試算表</button>
+  <!-- 切換按鈕 -->
+  <div class="switcher">
+    <button class="switch-btn active" onclick="switchSheet('station')">📊 場站總表</button>
+    <button class="switch-btn" onclick="switchSheet('repair')">🔧 報修系統</button>
+  </div>
+
+  <!-- 報修系統分頁 -->
+  <div class="sheet-tabs" id="repairTabs">
+    <div class="sheet-tab active" onclick="selectTab(this, '阜爾報修(未完成)')">阜爾報修(未完成)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '中控叫修(未完成)')">中控叫修(未完成)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(當日完成)')">阜爾報修(當日完成)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '中控報修(當日完成)')">中控報修(當日完成)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(歷史留存)')">阜爾報修(歷史留存)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '中控報修(歷史留存)')">中控報修(歷史留存)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(切換歷史留存)')">阜爾報修(切換歷史留存)</div>
+    <div class="sheet-tab" onclick="selectTab(this, '中控叫修(切換歷史留存)')">中控叫修(切換歷史留存)</div>
   </div>
 
   <div class="card">
@@ -126,12 +122,11 @@
       </h4>
       <div class="col-grid" id="colGrid"></div>
     </div>
-
     <div style="margin-top:16px">
       <input class="search-input" type="text" id="keyword"
         placeholder="輸入關鍵字搜尋..." onkeydown="if(event.key==='Enter') doSearch()" disabled>
       <button class="btn btn-primary" id="searchBtn" onclick="doSearch()" disabled>搜尋</button>
-      <div class="status" id="status">請點「載入試算表」開始</div>
+      <div class="status" id="status">請點上方按鈕選擇試算表，系統會自動載入</div>
     </div>
   </div>
 
@@ -145,7 +140,6 @@
   </div>
 </div>
 
-<!-- 彈出視窗 -->
 <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
   <div class="popup-box">
     <div class="popup-label" id="popupLabel"></div>
@@ -158,27 +152,60 @@
 </div>
 
 <script>
-  const DEFAULT_COLS = ['公司', '場地代號', '縣市', '區域', '淡大名稱', '場地地址', '派工保全'];
+  const SHEETS = {
+    station: { id: '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY', sheet: '總表', defaultCols: ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'] },
+    repair:  { id: '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI', sheet: '阜爾報修(未完成)', defaultCols: [] }
+  };
+
+  let currentMode = 'station';
   let allData = [], headers = [], activeHeaders = new Set();
   let currentCopyText = '';
 
+  window.onload = () => loadSheet();
+
+  function switchSheet(mode) {
+    if (currentMode === mode) return;
+    currentMode = mode;
+    document.querySelectorAll('.switch-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
+    });
+    document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
+    resetResults();
+    loadSheet();
+  }
+
+  function selectTab(el, sheetName) {
+    document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    SHEETS.repair.sheet = sheetName;
+    resetResults();
+    loadSheet();
+  }
+
+  function resetResults() {
+    allData = []; headers = []; activeHeaders = new Set();
+    document.getElementById('colSelector').style.display = 'none';
+    document.getElementById('colGrid').innerHTML = '';
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('keyword').disabled = true;
+    document.getElementById('searchBtn').disabled = true;
+    document.getElementById('keyword').value = '';
+  }
+
   async function loadSheet() {
-    const id = document.getElementById('sheetId').value.trim();
-    if (!id) { setStatus('請輸入試算表 ID', 'error'); return; }
-    const sheetName = document.getElementById('sheetName').value.trim();
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv${sheetName ? '&sheet=' + encodeURIComponent(sheetName) : ''}`;
+    const cfg = SHEETS[currentMode];
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${cfg.id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(cfg.sheet)}`;
     setStatus('<span class="spinner"></span>載入中...', '');
     try {
       const res = await fetch(csvUrl);
-      if (!res.ok) throw new Error('無法讀取試算表，請確認 ID 正確且共用設定為「知道連結的任何人可以查看」');
-      parseCSV(await res.text());
+      if (!res.ok) throw new Error('無法讀取試算表，請確認共用設定為「知道連結的任何人可以查看」');
+      parseCSV(await res.text(), cfg.defaultCols);
     } catch (e) {
       setStatus('❌ ' + e.message, 'error');
     }
   }
 
-  function parseCSV(text) {
-    const startRow = parseInt(document.getElementById('startRow').value) || 2;
+  function parseCSV(text, defaultCols) {
     const rows = [];
     let current = '', inQuotes = false, row = [];
     for (let i = 0; i < text.length; i++) {
@@ -200,18 +227,22 @@
     const validIndexes = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
     headers = validIndexes.map(i => rawHeaders[i]);
 
-    allData = rows.slice(startRow - 1).map(r =>
+    allData = rows.slice(1).map(r =>
       headers.reduce((obj, h, idx) => {
         obj[h] = (r[validIndexes[idx]] || '').replace(/^"|"$/g, '').trim();
         return obj;
       }, {})
     );
 
-    activeHeaders = new Set(headers.filter(h => DEFAULT_COLS.includes(h)));
+    if (defaultCols.length > 0) {
+      activeHeaders = new Set(headers.filter(h => defaultCols.includes(h)));
+    } else {
+      activeHeaders = new Set(headers);
+    }
     if (activeHeaders.size === 0) activeHeaders = new Set(headers);
 
     renderColChips();
-    setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個有效欄位）— 選好欄位後按搜尋`, 'success');
+    setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個欄位）— 選好欄位後按搜尋`, 'success');
     document.getElementById('keyword').disabled = false;
     document.getElementById('searchBtn').disabled = false;
     document.getElementById('colSelector').style.display = 'block';
@@ -278,13 +309,8 @@
     document.getElementById('popupOverlay').classList.add('show');
   }
 
-  function closePopup(e) {
-    if (e.target === document.getElementById('popupOverlay')) closePopupDirect();
-  }
-
-  function closePopupDirect() {
-    document.getElementById('popupOverlay').classList.remove('show');
-  }
+  function closePopup(e) { if (e.target === document.getElementById('popupOverlay')) closePopupDirect(); }
+  function closePopupDirect() { document.getElementById('popupOverlay').classList.remove('show'); }
 
   function copyContent() {
     navigator.clipboard.writeText(currentCopyText).then(() => {
@@ -300,14 +326,8 @@
     return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '<mark>' + m + '</mark>');
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function escAttr(s) {
-    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
-  }
-
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function escAttr(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n'); }
   function setStatus(msg, type) {
     const el = document.getElementById('status');
     el.innerHTML = msg;
@@ -316,3 +336,4 @@
 </script>
 </body>
 </html>
+
