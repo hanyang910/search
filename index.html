@@ -13,13 +13,11 @@
     header h1 { font-size: 22px; font-weight: 700; color: #1a202c; }
     header p { color: #718096; margin-top: 5px; font-size: 13px; }
 
-    /* 切換按鈕 */
     .switcher { display: flex; gap: 8px; margin-bottom: 16px; background: white; border-radius: 12px; padding: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .switch-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; color: #718096; text-align: center; line-height: 1.4; }
     .switch-btn.active { background: #3182ce; color: white; box-shadow: 0 2px 8px rgba(49,130,206,0.3); }
     .switch-btn:not(.active):hover { background: #f0f4f8; color: #2d3748; }
 
-    /* 分頁選擇（報修系統用） */
     .sheet-tabs { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
     .sheet-tabs.show { display: flex; }
     .sheet-tab { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; transition: all 0.15s; white-space: nowrap; }
@@ -77,7 +75,7 @@
     .popup-overlay.show { display: flex; }
     .popup-box { background: white; border-radius: 14px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
     .popup-label { font-size: 12px; font-weight: 600; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .popup-content { font-size: 15px; color: #1a202c; line-height: 1.6; word-break: break-all; background: #f7fafc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; min-height: 48px; }
+    .popup-content { font-size: 15px; color: #1a202c; line-height: 1.6; word-break: break-all; background: #f7fafc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; min-height: 48px; white-space: pre-wrap; }
     .popup-actions { display: flex; gap: 10px; justify-content: flex-end; }
     .btn-copy { background: #3182ce; color: white; padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; }
     .btn-copy:hover { background: #2b6cb0; }
@@ -93,22 +91,20 @@
     <p>快速搜尋 Google 試算表中的任何資料</p>
   </header>
 
-  <!-- 切換按鈕 -->
   <div class="switcher">
     <button class="switch-btn active" onclick="switchSheet('station')">📊 場站總表</button>
     <button class="switch-btn" onclick="switchSheet('repair')">🔧 報修系統</button>
   </div>
 
-  <!-- 報修系統分頁 -->
   <div class="sheet-tabs" id="repairTabs">
-    <div class="sheet-tab active" onclick="selectTab(this, '阜爾報修(未完成)')">阜爾報修(未完成)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '中控叫修(未完成)')">中控叫修(未完成)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(當日完成)')">阜爾報修(當日完成)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '中控報修(當日完成)')">中控報修(當日完成)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(歷史留存)')">阜爾報修(歷史留存)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '中控報修(歷史留存)')">中控報修(歷史留存)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '阜爾報修(切換歷史留存)')">阜爾報修(切換歷史留存)</div>
-    <div class="sheet-tab" onclick="selectTab(this, '中控叫修(切換歷史留存)')">中控叫修(切換歷史留存)</div>
+    <div class="sheet-tab active" data-sheet="阜爾報修(未完成)">阜爾報修(未完成)</div>
+    <div class="sheet-tab" data-sheet="中控叫修(未完成)">中控叫修(未完成)</div>
+    <div class="sheet-tab" data-sheet="阜爾報修(當日完成)">阜爾報修(當日完成)</div>
+    <div class="sheet-tab" data-sheet="中控報修(當日完成)">中控報修(當日完成)</div>
+    <div class="sheet-tab" data-sheet="阜爾報修(歷史留存)">阜爾報修(歷史留存)</div>
+    <div class="sheet-tab" data-sheet="中控報修(歷史留存)">中控報修(歷史留存)</div>
+    <div class="sheet-tab" data-sheet="阜爾報修(切換歷史留存)">阜爾報修(切換歷史留存)</div>
+    <div class="sheet-tab" data-sheet="中控叫修(切換歷史留存)">中控叫修(切換歷史留存)</div>
   </div>
 
   <div class="card">
@@ -140,7 +136,7 @@
   </div>
 </div>
 
-<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+<div class="popup-overlay" id="popupOverlay">
   <div class="popup-box">
     <div class="popup-label" id="popupLabel"></div>
     <div class="popup-content" id="popupContent"></div>
@@ -161,6 +157,31 @@
   let allData = [], headers = [], activeHeaders = new Set();
   let currentCopyText = '';
 
+  // 分頁標籤點擊
+  document.querySelectorAll('.sheet-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      SHEETS.repair.sheet = tab.dataset.sheet;
+      resetResults();
+      loadSheet();
+    });
+  });
+
+  // 彈出視窗點擊背景關閉
+  document.getElementById('popupOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closePopupDirect();
+  });
+
+  // 表格點擊事件（用事件委派，避免特殊字元問題）
+  document.getElementById('tableWrap').addEventListener('click', function(e) {
+    const td = e.target.closest('td');
+    if (!td) return;
+    const label = td.dataset.label || '';
+    const value = td.dataset.value || '';
+    openPopup(label, value);
+  });
+
   window.onload = () => loadSheet();
 
   function switchSheet(mode) {
@@ -170,14 +191,6 @@
       b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
     });
     document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
-    resetResults();
-    loadSheet();
-  }
-
-  function selectTab(el, sheetName) {
-    document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    SHEETS.repair.sheet = sheetName;
     resetResults();
     loadSheet();
   }
@@ -234,11 +247,9 @@
       }, {})
     );
 
-    if (defaultCols.length > 0) {
-      activeHeaders = new Set(headers.filter(h => defaultCols.includes(h)));
-    } else {
-      activeHeaders = new Set(headers);
-    }
+    activeHeaders = defaultCols.length > 0
+      ? new Set(headers.filter(h => defaultCols.includes(h)))
+      : new Set(headers);
     if (activeHeaders.size === 0) activeHeaders = new Set(headers);
 
     renderColChips();
@@ -256,7 +267,7 @@
       const chip = document.createElement('div');
       chip.className = 'col-chip' + (activeHeaders.has(h) ? ' active' : '');
       chip.textContent = h;
-      chip.onclick = () => {
+      chip.addEventListener('click', () => {
         if (activeHeaders.has(h)) {
           if (activeHeaders.size <= 1) return;
           activeHeaders.delete(h);
@@ -265,7 +276,7 @@
           activeHeaders.add(h);
           chip.classList.add('active');
         }
-      };
+      });
       grid.appendChild(chip);
     });
   }
@@ -289,14 +300,29 @@
       wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(kw)}」的資料</p></div>`;
       return;
     }
-    let html = '<table><thead><tr>' + visibleHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') + '</tr></thead><tbody>';
+
+    const tbody = document.createElement('tbody');
     rows.forEach(r => {
-      html += '<tr>' + visibleHeaders.map(h => {
+      const tr = document.createElement('tr');
+      visibleHeaders.forEach(h => {
+        const td = document.createElement('td');
         const v = String(r[h] ?? '');
-        return `<td title="${escHtml(v)}" onclick="openPopup('${escAttr(h)}','${escAttr(v)}')">${highlight(v, kw)}</td>`;
-      }).join('') + '</tr>';
+        td.dataset.label = h;
+        td.dataset.value = v;
+        td.innerHTML = highlight(v, kw);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
     });
-    wrap.innerHTML = html + '</tbody></table>';
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr>' + visibleHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') + '</tr>';
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    wrap.innerHTML = '';
+    wrap.appendChild(table);
+
     setStatus(`找到 ${rows.length} 筆符合「${escHtml(kw)}」的資料`, 'success');
   }
 
@@ -309,8 +335,9 @@
     document.getElementById('popupOverlay').classList.add('show');
   }
 
-  function closePopup(e) { if (e.target === document.getElementById('popupOverlay')) closePopupDirect(); }
-  function closePopupDirect() { document.getElementById('popupOverlay').classList.remove('show'); }
+  function closePopupDirect() {
+    document.getElementById('popupOverlay').classList.remove('show');
+  }
 
   function copyContent() {
     navigator.clipboard.writeText(currentCopyText).then(() => {
@@ -326,8 +353,10 @@
     return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '<mark>' + m + '</mark>');
   }
 
-  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function escAttr(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n'); }
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function setStatus(msg, type) {
     const el = document.getElementById('status');
     el.innerHTML = msg;
@@ -336,4 +365,3 @@
 </script>
 </body>
 </html>
-
