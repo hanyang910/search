@@ -67,6 +67,19 @@
     .legend-dot.done    { background: #eff6ff; border: 1px solid #bfdbfe; }
     .legend-dot.history { background: white;   border: 1px solid #e2e8f0; }
 
+    /* 每頁筆數 + 分頁控制 */
+    .pagination-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-top: 1px solid #e2e8f0; background: #fafafa; }
+    .per-page-group { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; }
+    .per-page-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: all 0.15s; }
+    .per-page-btn.active { background: #3182ce; border-color: #3182ce; color: white; font-weight: 600; }
+    .per-page-btn:not(.active):hover { background: #f0f4f8; }
+    .page-nav { display: flex; align-items: center; gap: 4px; }
+    .page-btn { padding: 5px 10px; font-size: 12px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: all 0.15s; min-width: 32px; text-align: center; }
+    .page-btn.active { background: #3182ce; border-color: #3182ce; color: white; font-weight: 600; }
+    .page-btn:not(.active):hover { background: #f0f4f8; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; background: white; }
+    .page-info { font-size: 12px; color: #718096; white-space: nowrap; }
+
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: #f7fafc; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
@@ -80,7 +93,7 @@
     mark { background: #fde68a; color: #92400e; border-radius: 2px; padding: 0 2px; }
     .empty-state { text-align: center; padding: 40px; color: #a0aec0; }
     .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
-    .click-hint { font-size: 11px; color: #a0aec0; text-align: center; padding: 10px; }
+    .click-hint { font-size: 11px; color: #a0aec0; text-align: center; padding: 8px; }
     .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #e2e8f0; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -154,6 +167,19 @@
       </div>
     </div>
     <div class="table-wrap" id="tableWrap"></div>
+    <div class="pagination-bar" id="paginationBar" style="display:none">
+      <div class="per-page-group">
+        每頁
+        <button class="per-page-btn active" onclick="setPerPage(30)">30</button>
+        <button class="per-page-btn" onclick="setPerPage(50)">50</button>
+        <button class="per-page-btn" onclick="setPerPage(100)">100</button>
+        筆
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="page-info" id="pageInfo"></span>
+        <div class="page-nav" id="pageNav"></div>
+      </div>
+    </div>
     <div class="click-hint">點擊任意欄位可查看完整內容並複製</div>
   </div>
 </div>
@@ -173,22 +199,8 @@
   const SHEET_ID_STATION = '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'];
-
-  // 阜爾彙總：資料對應（來源欄位 → 目標欄位，若目標欄位無值則從來源補入）
-  const FUER_FIELD_MAP = {
-    '時間戳記': '日期/時間',
-    '場地代號': '場代',
-    '場站名稱': '場站',
-    '區域':     '地區',
-  };
-
-  // 阜爾彙總預設顯示欄位
-  const FUER_DEFAULT_COLS = [
-    '日期/時間','地區','場代','場站','問題描述','報修人',
-    '聯絡電話','回覆業主','回覆人','回覆內容',
-    'PASS','PASS人','PASS備註','處理人','處理結果&備註'
-  ];
-
+  const FUER_FIELD_MAP = { '時間戳記':'日期/時間', '場地代號':'場代', '場站名稱':'場站', '區域':'地區' };
+  const FUER_DEFAULT_COLS = ['日期/時間','地區','場代','場站','問題描述','報修人','聯絡電話','回覆業主','回覆人','回覆內容','PASS','PASS人','PASS備註','處理人','處理結果&備註'];
   const COMBINED_SHEETS = {
     '阜爾': [
       { name: '阜爾報修(未完成)',   type: 'undone'  },
@@ -206,6 +218,10 @@
   let currentTabType = 'single';
   let currentGroup = '';
   let allData = [], headers = [], activeHeaders = new Set();
+  let filteredData = [];
+  let currentPage = 1;
+  let perPage = 30;
+  let currentKw = '';
   let currentCopyText = '';
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
@@ -254,11 +270,13 @@
   }
 
   function resetResults() {
-    allData = []; headers = []; activeHeaders = new Set();
+    allData = []; headers = []; activeHeaders = new Set(); filteredData = [];
+    currentPage = 1; currentKw = '';
     document.getElementById('colSelector').style.display = 'none';
     document.getElementById('colGrid').innerHTML = '';
     document.getElementById('resultsCard').style.display = 'none';
     document.getElementById('legend').style.display = 'none';
+    document.getElementById('paginationBar').style.display = 'none';
     document.getElementById('keyword').disabled = true;
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('keyword').value = '';
@@ -291,11 +309,8 @@
   }
 
   function applyFieldMap(obj, fieldMap) {
-    // 若目標欄位是空的，從來源欄位補入值
     Object.entries(fieldMap).forEach(([src, dst]) => {
-      if ((!obj[dst] || obj[dst] === '') && obj[src]) {
-        obj[dst] = obj[src];
-      }
+      if ((!obj[dst] || obj[dst] === '') && obj[src]) obj[dst] = obj[src];
     });
     return obj;
   }
@@ -306,88 +321,56 @@
       const text = await fetchCSV(sheetId, sheetName);
       const rows = parseCSV(text);
       if (!rows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
-
       const rawHeaders = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
       const validIdx = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
       headers = validIdx.map(i => rawHeaders[i]);
-
       allData = rows.slice(1).map(r =>
-        headers.reduce((obj, h, idx) => {
-          obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim();
-          obj['__rowType'] = '';
-          return obj;
-        }, {})
+        headers.reduce((obj, h, idx) => { obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim(); obj['__rowType'] = ''; return obj; }, {})
       );
-
-      activeHeaders = defaultCols.length > 0
-        ? new Set(headers.filter(h => defaultCols.includes(h)))
-        : new Set(headers);
+      activeHeaders = defaultCols.length > 0 ? new Set(headers.filter(h => defaultCols.includes(h))) : new Set(headers);
       if (activeHeaders.size === 0) activeHeaders = new Set(headers);
-
       document.getElementById('legend').style.display = 'none';
       finishLoad();
-    } catch(e) {
-      setStatus('❌ ' + e.message, 'error');
-    }
+    } catch(e) { setStatus('❌ ' + e.message, 'error'); }
   }
 
   async function loadCombinedSheets(group) {
     setStatus('<span class="spinner"></span>載入彙總資料中...', '');
     const sheets = COMBINED_SHEETS[group];
     const isFuer = group === '阜爾';
-
     try {
       const results = await Promise.all(sheets.map(s => fetchCSV(SHEET_ID_REPAIR, s.name)));
-      let mergedHeaders = [];
-      let mergedData = [];
-
+      let mergedHeaders = [], mergedData = [];
       results.forEach((text, i) => {
         const rows = parseCSV(text);
         if (!rows.length) return;
         const rawH = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
         const validIdx = rawH.map((h, j) => h ? j : -1).filter(j => j >= 0);
         const sheetHeaders = validIdx.map(j => rawH[j]);
-
         sheetHeaders.forEach(h => { if (!mergedHeaders.includes(h)) mergedHeaders.push(h); });
-
         const rowType = sheets[i].type;
         rows.slice(1).forEach(r => {
           const obj = { __rowType: rowType };
-          sheetHeaders.forEach((h, idx) => {
-            obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim();
-          });
-          // 阜爾彙總套用欄位對應
+          sheetHeaders.forEach((h, idx) => { obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim(); });
           if (isFuer) applyFieldMap(obj, FUER_FIELD_MAP);
           mergedData.push(obj);
         });
       });
-
-      // 確保阜爾彙總的目標欄位都存在於 headers 中
       if (isFuer) {
-        Object.values(FUER_FIELD_MAP).forEach(dst => {
-          if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst);
-        });
+        Object.values(FUER_FIELD_MAP).forEach(dst => { if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst); });
       }
-
       headers = mergedHeaders;
-
-      // 排序：未完成 → 當日完成 → 歷史留存
       const order = { undone: 0, done: 1, history: 2 };
       allData = mergedData.sort((a, b) => order[a.__rowType] - order[b.__rowType]);
-
-      // 阜爾彙總預設顯示欄位；中控彙總全選
       if (isFuer) {
         activeHeaders = new Set(headers.filter(h => FUER_DEFAULT_COLS.includes(h)));
         if (activeHeaders.size === 0) activeHeaders = new Set(headers);
       } else {
         activeHeaders = new Set(headers);
       }
-
       document.getElementById('legend').style.display = 'flex';
       finishLoad();
-    } catch(e) {
-      setStatus('❌ ' + e.message, 'error');
-    }
+    } catch(e) { setStatus('❌ ' + e.message, 'error'); }
   }
 
   function finishLoad() {
@@ -407,14 +390,8 @@
       chip.className = 'col-chip' + (activeHeaders.has(h) ? ' active' : '');
       chip.textContent = h;
       chip.addEventListener('click', () => {
-        if (activeHeaders.has(h)) {
-          if (activeHeaders.size <= 1) return;
-          activeHeaders.delete(h);
-          chip.classList.remove('active');
-        } else {
-          activeHeaders.add(h);
-          chip.classList.add('active');
-        }
+        if (activeHeaders.has(h)) { if (activeHeaders.size <= 1) return; activeHeaders.delete(h); chip.classList.remove('active'); }
+        else { activeHeaders.add(h); chip.classList.add('active'); }
       });
       grid.appendChild(chip);
     });
@@ -424,25 +401,46 @@
   function selectNone() { activeHeaders = new Set([headers[0]]); renderColChips(); }
 
   function doSearch() {
-    const kw = document.getElementById('keyword').value.trim();
-    const kwLower = kw.toLowerCase();
-    const found = kw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
-    showResults(found, kw);
+    currentKw = document.getElementById('keyword').value.trim();
+    const kwLower = currentKw.toLowerCase();
+    filteredData = currentKw ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower))) : allData;
+    currentPage = 1;
+    renderPage();
   }
 
-  function showResults(rows, kw) {
-    document.getElementById('resultsCard').style.display = 'block';
-    document.getElementById('countBadge').textContent = rows.length + ' 筆';
+  function setPerPage(n) {
+    perPage = n;
+    currentPage = 1;
+    document.querySelectorAll('.per-page-btn').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === n));
+    renderPage();
+  }
+
+  function goToPage(p) {
+    currentPage = p;
+    renderPage();
+    document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderPage() {
+    const total = filteredData.length;
+    const totalPages = Math.max(1, Math.ceil(total / perPage));
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * perPage;
+    const pageRows = filteredData.slice(start, start + perPage);
     const visibleHeaders = headers.filter(h => activeHeaders.has(h));
     const wrap = document.getElementById('tableWrap');
 
-    if (!rows.length) {
-      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(kw)}」的資料</p></div>`;
+    document.getElementById('resultsCard').style.display = 'block';
+    document.getElementById('countBadge').textContent = total + ' 筆';
+
+    if (!total) {
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(currentKw)}」的資料</p></div>`;
+      document.getElementById('paginationBar').style.display = 'none';
       return;
     }
 
     const tbody = document.createElement('tbody');
-    rows.forEach(r => {
+    pageRows.forEach(r => {
       const tr = document.createElement('tr');
       const rt = r.__rowType;
       tr.classList.add(rt === 'undone' ? 'row-undone' : rt === 'done' ? 'row-done' : 'row-history');
@@ -451,7 +449,7 @@
         const v = String(r[h] ?? '');
         td.dataset.label = h;
         td.dataset.value = v;
-        td.innerHTML = highlight(v, kw);
+        td.innerHTML = highlight(v, currentKw);
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
@@ -464,7 +462,31 @@
     table.appendChild(tbody);
     wrap.innerHTML = '';
     wrap.appendChild(table);
-    setStatus(`找到 ${rows.length} 筆符合「${escHtml(kw)}」的資料`, 'success');
+
+    // 分頁列
+    document.getElementById('paginationBar').style.display = 'flex';
+    document.getElementById('pageInfo').textContent = `第 ${start+1}–${Math.min(start+perPage, total)} 筆，共 ${total} 筆`;
+
+    // 頁碼按鈕（最多顯示5個）
+    const nav = document.getElementById('pageNav');
+    nav.innerHTML = '';
+    const addBtn = (label, page, disabled, active) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.textContent = label;
+      b.disabled = disabled;
+      if (!disabled) b.onclick = () => goToPage(page);
+      nav.appendChild(b);
+    };
+
+    addBtn('‹', currentPage - 1, currentPage === 1, false);
+    let startP = Math.max(1, currentPage - 2);
+    let endP = Math.min(totalPages, startP + 4);
+    if (endP - startP < 4) startP = Math.max(1, endP - 4);
+    for (let p = startP; p <= endP; p++) addBtn(p, p, false, p === currentPage);
+    addBtn('›', currentPage + 1, currentPage === totalPages, false);
+
+    setStatus(`找到 ${total} 筆符合「${escHtml(currentKw)}」的資料`, 'success');
   }
 
   function openPopup(label, content) {
@@ -476,9 +498,7 @@
     document.getElementById('popupOverlay').classList.add('show');
   }
 
-  function closePopupDirect() {
-    document.getElementById('popupOverlay').classList.remove('show');
-  }
+  function closePopupDirect() { document.getElementById('popupOverlay').classList.remove('show'); }
 
   function copyContent() {
     navigator.clipboard.writeText(currentCopyText).then(() => {
@@ -494,9 +514,7 @@
     return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '<mark>' + m + '</mark>');
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   function setStatus(msg, type) {
     const el = document.getElementById('status');
