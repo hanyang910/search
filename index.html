@@ -23,6 +23,8 @@
     .sheet-tab { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; transition: all 0.15s; white-space: nowrap; }
     .sheet-tab.active { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; }
     .sheet-tab:hover { border-color: #bee3f8; background: #f0f9ff; }
+    .sheet-tab.combined { border-color: #9f7aea; color: #6b46c1; background: #faf5ff; }
+    .sheet-tab.combined.active { background: #e9d8fd; border-color: #9f7aea; color: #553c9a; }
 
     .card { background: white; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; }
 
@@ -54,17 +56,28 @@
     .col-chip.active:hover { background: #dbeafe; }
 
     .results-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; display: none; }
-    .results-header { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .results-header { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
     .results-header h3 { font-size: 14px; font-weight: 600; color: #2d3748; }
+    .results-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .count-badge { background: #ebf8ff; color: #2b6cb0; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .legend { display: flex; gap: 8px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #718096; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .legend-dot.undone { background: #fefce8; border: 1px solid #fde047; }
+    .legend-dot.done { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .legend-dot.history { background: white; border: 1px solid #e2e8f0; }
+
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: #f7fafc; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
-    tbody tr:hover { background: #f7fafc; }
-    tbody td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; color: #2d3748; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; transition: background 0.1s; }
-    tbody td:hover { background: #ebf8ff; color: #2b6cb0; }
+    tbody tr { transition: filter 0.1s; }
+    tbody tr:hover { filter: brightness(0.96); }
+    tbody tr.row-undone td { background: #fefce8; }
+    tbody tr.row-done td { background: #eff6ff; }
+    tbody tr.row-history td { background: white; }
+    tbody td { padding: 9px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #2d3748; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
     tbody tr:last-child td { border-bottom: none; }
-    mark { background: #fefcbf; color: #744210; border-radius: 2px; padding: 0 2px; }
+    mark { background: #fde68a; color: #92400e; border-radius: 2px; padding: 0 2px; }
     .empty-state { text-align: center; padding: 40px; color: #a0aec0; }
     .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
     .click-hint { font-size: 11px; color: #a0aec0; text-align: center; padding: 10px; }
@@ -97,14 +110,16 @@
   </div>
 
   <div class="sheet-tabs" id="repairTabs">
-    <div class="sheet-tab active" data-sheet="阜爾報修(未完成)">阜爾報修(未完成)</div>
-    <div class="sheet-tab" data-sheet="中控叫修(未完成)">中控叫修(未完成)</div>
-    <div class="sheet-tab" data-sheet="阜爾報修(當日完成)">阜爾報修(當日完成)</div>
-    <div class="sheet-tab" data-sheet="中控報修(當日完成)">中控報修(當日完成)</div>
-    <div class="sheet-tab" data-sheet="阜爾報修(歷史留存)">阜爾報修(歷史留存)</div>
-    <div class="sheet-tab" data-sheet="中控報修(歷史留存)">中控報修(歷史留存)</div>
-    <div class="sheet-tab" data-sheet="阜爾報修(切換歷史留存)">阜爾報修(切換歷史留存)</div>
-    <div class="sheet-tab" data-sheet="中控叫修(切換歷史留存)">中控叫修(切換歷史留存)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="阜爾報修(未完成)">阜爾報修(未完成)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="中控叫修(未完成)">中控叫修(未完成)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="阜爾報修(當日完成)">阜爾報修(當日完成)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="中控報修(當日完成)">中控報修(當日完成)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="阜爾報修(歷史留存)">阜爾報修(歷史留存)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="中控報修(歷史留存)">中控報修(歷史留存)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="阜爾報修(切換歷史留存)">阜爾報修(切換歷史留存)</div>
+    <div class="sheet-tab" data-type="single" data-sheet="中控叫修(切換歷史留存)">中控叫修(切換歷史留存)</div>
+    <div class="sheet-tab combined" data-type="combined" data-group="阜爾">🔀 阜爾彙總</div>
+    <div class="sheet-tab combined" data-type="combined" data-group="中控">🔀 中控彙總</div>
   </div>
 
   <div class="card">
@@ -129,7 +144,14 @@
   <div class="results-card" id="resultsCard">
     <div class="results-header">
       <h3>搜尋結果</h3>
-      <span class="count-badge" id="countBadge">0 筆</span>
+      <div class="results-header-right">
+        <div class="legend" id="legend" style="display:none">
+          <div class="legend-item"><div class="legend-dot undone"></div>未完成</div>
+          <div class="legend-item"><div class="legend-dot done"></div>當日完成</div>
+          <div class="legend-item"><div class="legend-dot history"></div>歷史留存</div>
+        </div>
+        <span class="count-badge" id="countBadge">0 筆</span>
+      </div>
     </div>
     <div class="table-wrap" id="tableWrap"></div>
     <div class="click-hint">點擊任意欄位可查看完整內容並複製</div>
@@ -148,12 +170,26 @@
 </div>
 
 <script>
-  const SHEETS = {
-    station: { id: '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY', sheet: '總表', defaultCols: ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'] },
-    repair:  { id: '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI', sheet: '阜爾報修(未完成)', defaultCols: [] }
+  const SHEET_ID_STATION = '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY';
+  const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
+  const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'];
+
+  const COMBINED_SHEETS = {
+    '阜爾': [
+      { name: '阜爾報修(未完成)',   type: 'undone'  },
+      { name: '阜爾報修(當日完成)', type: 'done'    },
+      { name: '阜爾報修(歷史留存)', type: 'history' },
+    ],
+    '中控': [
+      { name: '中控叫修(未完成)',   type: 'undone'  },
+      { name: '中控報修(當日完成)', type: 'done'    },
+      { name: '中控報修(歷史留存)', type: 'history' },
+    ],
   };
 
   let currentMode = 'station';
+  let currentTabType = 'single'; // 'single' | 'combined'
+  let currentGroup = '';
   let allData = [], headers = [], activeHeaders = new Set();
   let currentCopyText = '';
 
@@ -162,37 +198,50 @@
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      SHEETS.repair.sheet = tab.dataset.sheet;
+      currentTabType = tab.dataset.type;
       resetResults();
-      loadSheet();
+      if (currentTabType === 'single') {
+        loadSingleSheet(SHEET_ID_REPAIR, tab.dataset.sheet, []);
+      } else {
+        currentGroup = tab.dataset.group;
+        loadCombinedSheets(currentGroup);
+      }
     });
   });
 
-  // 彈出視窗點擊背景關閉
+  // 彈出視窗背景關閉
   document.getElementById('popupOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePopupDirect();
   });
 
-  // 表格點擊事件（用事件委派，避免特殊字元問題）
+  // 表格點擊（事件委派）
   document.getElementById('tableWrap').addEventListener('click', function(e) {
     const td = e.target.closest('td');
     if (!td) return;
-    const label = td.dataset.label || '';
-    const value = td.dataset.value || '';
-    openPopup(label, value);
+    openPopup(td.dataset.label || '', td.dataset.value || '');
   });
 
-  window.onload = () => loadSheet();
+  window.onload = () => switchSheet('station');
 
   function switchSheet(mode) {
-    if (currentMode === mode) return;
     currentMode = mode;
     document.querySelectorAll('.switch-btn').forEach((b, i) => {
       b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
     });
-    document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
+    const repairTabs = document.getElementById('repairTabs');
+    repairTabs.classList.toggle('show', mode === 'repair');
     resetResults();
-    loadSheet();
+
+    if (mode === 'station') {
+      loadSingleSheet(SHEET_ID_STATION, '總表', STATION_DEFAULT_COLS);
+    } else {
+      // 預設選第一個分頁
+      const firstTab = document.querySelector('.sheet-tab');
+      document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+      firstTab.classList.add('active');
+      currentTabType = 'single';
+      loadSingleSheet(SHEET_ID_REPAIR, firstTab.dataset.sheet, []);
+    }
   }
 
   function resetResults() {
@@ -200,25 +249,20 @@
     document.getElementById('colSelector').style.display = 'none';
     document.getElementById('colGrid').innerHTML = '';
     document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('legend').style.display = 'none';
     document.getElementById('keyword').disabled = true;
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('keyword').value = '';
   }
 
-  async function loadSheet() {
-    const cfg = SHEETS[currentMode];
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${cfg.id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(cfg.sheet)}`;
-    setStatus('<span class="spinner"></span>載入中...', '');
-    try {
-      const res = await fetch(csvUrl);
-      if (!res.ok) throw new Error('無法讀取試算表，請確認共用設定為「知道連結的任何人可以查看」');
-      parseCSV(await res.text(), cfg.defaultCols);
-    } catch (e) {
-      setStatus('❌ ' + e.message, 'error');
-    }
+  async function fetchCSV(sheetId, sheetName) {
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`無法讀取「${sheetName}」`);
+    return res.text();
   }
 
-  function parseCSV(text, defaultCols) {
+  function parseCSV(text) {
     const rows = [];
     let current = '', inQuotes = false, row = [];
     for (let i = 0; i < text.length; i++) {
@@ -234,24 +278,82 @@
       } else current += ch;
     }
     if (current || row.length) { row.push(current); rows.push(row); }
-    if (!rows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
+    return rows;
+  }
 
-    const rawHeaders = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
-    const validIndexes = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
-    headers = validIndexes.map(i => rawHeaders[i]);
+  async function loadSingleSheet(sheetId, sheetName, defaultCols) {
+    setStatus('<span class="spinner"></span>載入中...', '');
+    try {
+      const text = await fetchCSV(sheetId, sheetName);
+      const rows = parseCSV(text);
+      if (!rows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
 
-    allData = rows.slice(1).map(r =>
-      headers.reduce((obj, h, idx) => {
-        obj[h] = (r[validIndexes[idx]] || '').replace(/^"|"$/g, '').trim();
-        return obj;
-      }, {})
-    );
+      const rawHeaders = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
+      const validIdx = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
+      headers = validIdx.map(i => rawHeaders[i]);
 
-    activeHeaders = defaultCols.length > 0
-      ? new Set(headers.filter(h => defaultCols.includes(h)))
-      : new Set(headers);
-    if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+      allData = rows.slice(1).map(r =>
+        headers.reduce((obj, h, idx) => {
+          obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim();
+          obj['__rowType'] = '';
+          return obj;
+        }, {})
+      );
 
+      activeHeaders = defaultCols.length > 0
+        ? new Set(headers.filter(h => defaultCols.includes(h)))
+        : new Set(headers);
+      if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+
+      document.getElementById('legend').style.display = 'none';
+      finishLoad();
+    } catch(e) {
+      setStatus('❌ ' + e.message, 'error');
+    }
+  }
+
+  async function loadCombinedSheets(group) {
+    setStatus('<span class="spinner"></span>載入彙總資料中...', '');
+    const sheets = COMBINED_SHEETS[group];
+    try {
+      const results = await Promise.all(sheets.map(s => fetchCSV(SHEET_ID_REPAIR, s.name)));
+      let mergedHeaders = [];
+      let mergedData = [];
+
+      results.forEach((text, i) => {
+        const rows = parseCSV(text);
+        if (!rows.length) return;
+        const rawH = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
+        const validIdx = rawH.map((h, j) => h ? j : -1).filter(j => j >= 0);
+        const sheetHeaders = validIdx.map(j => rawH[j]);
+
+        // 合併欄位
+        sheetHeaders.forEach(h => { if (!mergedHeaders.includes(h)) mergedHeaders.push(h); });
+
+        const rowType = sheets[i].type;
+        rows.slice(1).forEach(r => {
+          const obj = { __rowType: rowType };
+          sheetHeaders.forEach((h, idx) => {
+            obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim();
+          });
+          mergedData.push(obj);
+        });
+      });
+
+      headers = mergedHeaders;
+      // 排序：未完成 → 當日完成 → 歷史留存
+      const order = { undone: 0, done: 1, history: 2 };
+      allData = mergedData.sort((a, b) => order[a.__rowType] - order[b.__rowType]);
+
+      activeHeaders = new Set(headers);
+      document.getElementById('legend').style.display = 'flex';
+      finishLoad();
+    } catch(e) {
+      setStatus('❌ ' + e.message, 'error');
+    }
+  }
+
+  function finishLoad() {
     renderColChips();
     setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個欄位）— 選好欄位後按搜尋`, 'success');
     document.getElementById('keyword').disabled = false;
@@ -296,6 +398,7 @@
     document.getElementById('countBadge').textContent = rows.length + ' 筆';
     const visibleHeaders = headers.filter(h => activeHeaders.has(h));
     const wrap = document.getElementById('tableWrap');
+
     if (!rows.length) {
       wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(kw)}」的資料</p></div>`;
       return;
@@ -304,6 +407,11 @@
     const tbody = document.createElement('tbody');
     rows.forEach(r => {
       const tr = document.createElement('tr');
+      const rowType = r.__rowType;
+      if (rowType === 'undone') tr.classList.add('row-undone');
+      else if (rowType === 'done') tr.classList.add('row-done');
+      else tr.classList.add('row-history');
+
       visibleHeaders.forEach(h => {
         const td = document.createElement('td');
         const v = String(r[h] ?? '');
