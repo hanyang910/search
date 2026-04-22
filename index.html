@@ -12,12 +12,10 @@
     header { text-align: center; margin-bottom: 20px; }
     header h1 { font-size: 22px; font-weight: 700; color: #1a202c; }
     header p { color: #718096; margin-top: 5px; font-size: 13px; }
-
     .switcher { display: flex; gap: 8px; margin-bottom: 16px; background: white; border-radius: 12px; padding: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .switch-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; color: #718096; text-align: center; line-height: 1.4; }
     .switch-btn.active { background: #3182ce; color: white; box-shadow: 0 2px 8px rgba(49,130,206,0.3); }
     .switch-btn:not(.active):hover { background: #f0f4f8; color: #2d3748; }
-
     .sheet-tabs { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
     .sheet-tabs.show { display: flex; }
     .sheet-tab { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; transition: all 0.15s; white-space: nowrap; }
@@ -25,7 +23,6 @@
     .sheet-tab:hover { border-color: #bee3f8; background: #f0f9ff; }
     .sheet-tab.combined { border-color: #9f7aea; color: #6b46c1; background: #faf5ff; }
     .sheet-tab.combined.active { background: #e9d8fd; border-color: #9f7aea; color: #553c9a; }
-
     .card { background: white; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; }
     .btn { padding: 10px 20px; border: none; border-radius: 9px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; }
     .btn-primary { background: #3182ce; color: white; width: 100%; padding: 12px; font-size: 15px; margin-top: 10px; }
@@ -34,8 +31,6 @@
     .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
     .btn-outline { background: white; border: 1px solid #e2e8f0; color: #4a5568; }
     .btn-outline:hover { background: #f7fafc; }
-
-    /* 地區篩選器 */
     .region-filter { display: none; margin-bottom: 16px; background: white; border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .region-filter.show { display: block; }
     .region-filter-label { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
@@ -46,16 +41,13 @@
     .region-chip.all.active { background: #718096; border-color: #718096; color: white; }
     .region-chip:not(.active):hover { border-color: #fc8181; background: #fff5f5; color: #c53030; }
     .region-chip.all:not(.active):hover { border-color: #a0aec0; background: #f7fafc; color: #2d3748; }
-
     .search-input { width: 100%; padding: 12px 16px; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: border-color 0.2s; color: #2d3748; }
     .search-input:focus { border-color: #4299e1; }
     .search-input::placeholder { color: #a0aec0; }
     .search-input:disabled { background: #f7fafc; }
-
     .status { margin-top: 10px; font-size: 13px; color: #718096; min-height: 18px; text-align: center; }
     .status.error { color: #e53e3e; }
     .status.success { color: #38a169; }
-
     .col-selector { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
     .col-selector h4 { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
     .col-actions { display: flex; gap: 6px; }
@@ -65,7 +57,6 @@
     .col-chip.active { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; font-weight: 500; }
     .col-chip:hover { border-color: #bee3f8; background: #f0f9ff; }
     .col-chip.active:hover { background: #dbeafe; }
-
     .results-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; display: none; }
     .results-header { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
     .results-header h3 { font-size: 14px; font-weight: 600; color: #2d3748; }
@@ -77,7 +68,6 @@
     .legend-dot.undone  { background: #fefce8; border: 1px solid #fde047; }
     .legend-dot.done    { background: #eff6ff; border: 1px solid #bfdbfe; }
     .legend-dot.history { background: white;   border: 1px solid #e2e8f0; }
-
     .pagination-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-top: 1px solid #e2e8f0; background: #fafafa; }
     .per-page-group { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; }
     .per-page-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: all 0.15s; }
@@ -89,7 +79,6 @@
     .page-btn:not(.active):hover { background: #f0f4f8; }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; background: white; }
     .page-info { font-size: 12px; color: #718096; white-space: nowrap; }
-
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: #f7fafc; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a5568; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
@@ -108,7 +97,6 @@
     .click-hint { font-size: 11px; color: #a0aec0; text-align: center; padding: 8px; }
     .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #e2e8f0; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
     .popup-overlay.show { display: flex; }
     .popup-box { background: white; border-radius: 14px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
@@ -128,12 +116,10 @@
     <h1>🚌 城市車旅場站資料搜尋工具</h1>
     <p>快速搜尋 Google 試算表中的任何資料</p>
   </header>
-
   <div class="switcher">
     <button class="switch-btn active" onclick="switchSheet('station')">📊 場站總表</button>
     <button class="switch-btn" onclick="switchSheet('repair')">🔧 報修系統</button>
   </div>
-
   <div class="sheet-tabs" id="repairTabs">
     <div class="sheet-tab" data-type="single" data-sheet="阜爾報修(未完成)">阜爾報修(未完成)</div>
     <div class="sheet-tab" data-type="single" data-sheet="中控叫修(未完成)">中控叫修(未完成)</div>
@@ -147,19 +133,17 @@
     <div class="sheet-tab combined" data-type="combined" data-group="中控">🔀 中控彙總</div>
   </div>
 
-  <!-- 地區篩選器（只在報修系統顯示） -->
   <div class="region-filter" id="regionFilter">
     <div class="region-filter-label">
       📍 地區篩選
-      <span>選擇地區後再按搜尋</span>
+      <span>同時比對「地區」欄位完全符合，或「場站」名稱包含地區關鍵字</span>
     </div>
     <div class="region-chips" id="regionChips"></div>
   </div>
 
   <div class="card">
     <div class="col-selector" id="colSelector">
-      <h4>
-        顯示欄位（選好後再按搜尋）
+      <h4>顯示欄位（選好後再按搜尋）
         <span class="col-actions">
           <button class="btn btn-sm btn-outline" onclick="selectAll()">全選</button>
           <button class="btn btn-sm btn-outline" onclick="selectNone()">全不選</button>
@@ -168,8 +152,7 @@
       <div class="col-grid" id="colGrid"></div>
     </div>
     <div style="margin-top:16px">
-      <input class="search-input" type="text" id="keyword"
-        placeholder="輸入關鍵字搜尋..." onkeydown="if(event.key==='Enter') doSearch()" disabled>
+      <input class="search-input" type="text" id="keyword" placeholder="輸入關鍵字搜尋..." onkeydown="if(event.key==='Enter') doSearch()" disabled>
       <button class="btn btn-primary" id="searchBtn" onclick="doSearch()" disabled>搜尋</button>
       <div class="status" id="status">請點上方按鈕選擇試算表，系統會自動載入</div>
     </div>
@@ -189,12 +172,10 @@
     </div>
     <div class="table-wrap" id="tableWrap"></div>
     <div class="pagination-bar" id="paginationBar" style="display:none">
-      <div class="per-page-group">
-        每頁
+      <div class="per-page-group">每頁
         <button class="per-page-btn active" onclick="setPerPage(30)">30</button>
         <button class="per-page-btn" onclick="setPerPage(50)">50</button>
-        <button class="per-page-btn" onclick="setPerPage(100)">100</button>
-        筆
+        <button class="per-page-btn" onclick="setPerPage(100)">100</button>筆
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span class="page-info" id="pageInfo"></span>
@@ -220,36 +201,40 @@
   const SHEET_ID_STATION = '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'];
-  const FUER_FIELD_MAP = { '時間戳記':'日期/時間', '場地代號':'場代', '場站名稱':'場站', '區域':'地區' };
+  const FUER_FIELD_MAP = {'時間戳記':'日期/時間','場地代號':'場代','場站名稱':'場站','區域':'地區'};
   const FUER_DEFAULT_COLS = ['日期/時間','地區','場代','場站','問題描述','報修人','聯絡電話','回覆業主','回覆人','回覆內容','PASS','PASS人','PASS備註','處理人','處理結果&備註'];
   const COMBINED_SHEETS = {
-    '阜爾': [
-      { name: '阜爾報修(未完成)',   type: 'undone'  },
-      { name: '阜爾報修(當日完成)', type: 'done'    },
-      { name: '阜爾報修(歷史留存)', type: 'history' },
-    ],
-    '中控': [
-      { name: '中控叫修(未完成)',   type: 'undone'  },
-      { name: '中控報修(當日完成)', type: 'done'    },
-      { name: '中控報修(歷史留存)', type: 'history' },
-    ],
+    '阜爾':[{name:'阜爾報修(未完成)',type:'undone'},{name:'阜爾報修(當日完成)',type:'done'},{name:'阜爾報修(歷史留存)',type:'history'}],
+    '中控':[{name:'中控叫修(未完成)',type:'undone'},{name:'中控報修(當日完成)',type:'done'},{name:'中控報修(歷史留存)',type:'history'}],
   };
-  const DATE_COLS = ['日期/時間', '時間戳記', '日期', '時間'];
-  const ROW_TYPE_ORDER = { undone: 0, done: 1, history: 2 };
+  const DATE_COLS = ['日期/時間','時間戳記','日期','時間'];
+  const ROW_TYPE_ORDER = {undone:0,done:1,history:2};
   const DEFAULT_REGION = '台南市';
   const REGION_COL = '地區';
+  const STATION_COL = '場站';
+  const REGION_SUFFIX = ['市','縣','區','鄉','鎮'];
 
-  let currentMode = 'station';
-  let currentTabType = 'single';
-  let currentGroup = '';
-  let allData = [], headers = [], activeHeaders = new Set();
-  let filteredData = [];
-  let currentPage = 1;
-  let perPage = 30;
-  let currentKw = '';
-  let currentCopyText = '';
-  let isCombined = false;
-  let selectedRegion = DEFAULT_REGION; // '__all__' 代表全部
+  let currentMode='station', currentTabType='single', currentGroup='';
+  let allData=[], headers=[], activeHeaders=new Set();
+  let filteredData=[], currentPage=1, perPage=30, currentKw='', currentCopyText='';
+  let isCombined=false, selectedRegion=DEFAULT_REGION;
+
+  // 去除縣市字尾，取得比對場站用的關鍵字
+  // 例如：台南市 → 台南、高雄市 → 高雄、新北市 → 新北
+  function getRegionKeyword(region) {
+    let kw = region;
+    for (const s of REGION_SUFFIX) { if (kw.endsWith(s)) { kw = kw.slice(0, -s.length); break; } }
+    return kw;
+  }
+
+  function matchRegion(row, region) {
+    if (region === '__all__') return true;
+    const kw = getRegionKeyword(region);
+    const rowRegion = row[REGION_COL] || '';
+    const rowStation = row[STATION_COL] || '';
+    // 地區欄完全符合 OR 場站名稱包含關鍵字（例如「台南」）
+    return rowRegion === region || rowStation.includes(kw);
+  }
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -257,387 +242,256 @@
       tab.classList.add('active');
       currentTabType = tab.dataset.type;
       resetResults();
-      if (currentTabType === 'single') {
-        isCombined = false;
-        loadSingleSheet(SHEET_ID_REPAIR, tab.dataset.sheet, []);
-      } else {
-        isCombined = true;
-        currentGroup = tab.dataset.group;
-        loadCombinedSheets(currentGroup);
-      }
+      if (currentTabType === 'single') { isCombined=false; loadSingleSheet(SHEET_ID_REPAIR, tab.dataset.sheet, []); }
+      else { isCombined=true; currentGroup=tab.dataset.group; loadCombinedSheets(currentGroup); }
     });
   });
 
-  document.getElementById('popupOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closePopupDirect();
-  });
-
+  document.getElementById('popupOverlay').addEventListener('click', function(e) { if (e.target===this) closePopupDirect(); });
   document.getElementById('tableWrap').addEventListener('click', function(e) {
-    const td = e.target.closest('td');
-    if (!td) return;
-    openPopup(td.dataset.label || '', td.dataset.value || '');
+    const td = e.target.closest('td'); if (!td) return;
+    openPopup(td.dataset.label||'', td.dataset.value||'');
   });
 
   window.onload = () => switchSheet('station');
 
   function switchSheet(mode) {
     currentMode = mode;
-    document.querySelectorAll('.switch-btn').forEach((b, i) => {
-      b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
-    });
-    document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
-
-    // 地區篩選器只在報修系統顯示
-    if (mode === 'repair') {
-      selectedRegion = DEFAULT_REGION;
-    } else {
-      document.getElementById('regionFilter').classList.remove('show');
-    }
-
+    document.querySelectorAll('.switch-btn').forEach((b,i) => b.classList.toggle('active',(i===0&&mode==='station')||(i===1&&mode==='repair')));
+    document.getElementById('repairTabs').classList.toggle('show', mode==='repair');
+    if (mode==='repair') { selectedRegion=DEFAULT_REGION; } else { document.getElementById('regionFilter').classList.remove('show'); }
     resetResults();
-    if (mode === 'station') {
-      isCombined = false;
-      loadSingleSheet(SHEET_ID_STATION, '總表', STATION_DEFAULT_COLS);
-    } else {
-      const firstTab = document.querySelector('.sheet-tab');
-      document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
-      firstTab.classList.add('active');
-      currentTabType = 'single';
-      isCombined = false;
+    if (mode==='station') { isCombined=false; loadSingleSheet(SHEET_ID_STATION,'總表',STATION_DEFAULT_COLS); }
+    else {
+      const firstTab=document.querySelector('.sheet-tab');
+      document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.remove('active'));
+      firstTab.classList.add('active'); currentTabType='single'; isCombined=false;
       loadSingleSheet(SHEET_ID_REPAIR, firstTab.dataset.sheet, []);
     }
   }
 
   function resetResults() {
-    allData = []; headers = []; activeHeaders = new Set(); filteredData = [];
-    currentPage = 1; currentKw = '';
-    document.getElementById('colSelector').style.display = 'none';
-    document.getElementById('colGrid').innerHTML = '';
-    document.getElementById('resultsCard').style.display = 'none';
-    document.getElementById('legend').style.display = 'none';
-    document.getElementById('paginationBar').style.display = 'none';
-    document.getElementById('keyword').disabled = true;
-    document.getElementById('searchBtn').disabled = true;
-    document.getElementById('keyword').value = '';
+    allData=[]; headers=[]; activeHeaders=new Set(); filteredData=[];
+    currentPage=1; currentKw='';
+    ['colSelector','resultsCard','legend','paginationBar'].forEach(id => {
+      const el=document.getElementById(id);
+      if (id==='colSelector') el.style.display='none';
+      else if (id==='resultsCard') el.style.display='none';
+      else if (id==='legend') el.style.display='none';
+      else el.style.display='none';
+    });
+    document.getElementById('colGrid').innerHTML='';
+    document.getElementById('keyword').disabled=true;
+    document.getElementById('searchBtn').disabled=true;
+    document.getElementById('keyword').value='';
   }
 
-  // 從資料中抓取所有地區，渲染篩選器
   function renderRegionFilter(data) {
-    if (currentMode !== 'repair') return;
-    const regions = [...new Set(data.map(r => r[REGION_COL] || '').filter(v => v))].sort();
-    const chips = document.getElementById('regionChips');
-    chips.innerHTML = '';
-
-    // 全部
-    const allChip = document.createElement('div');
-    allChip.className = 'region-chip all' + (selectedRegion === '__all__' ? ' active' : '');
-    allChip.textContent = '全部';
-    allChip.addEventListener('click', () => { selectedRegion = '__all__'; renderRegionFilter(allData); });
+    if (currentMode!=='repair') return;
+    const regions=[...new Set(data.map(r=>r[REGION_COL]||'').filter(v=>v))].sort();
+    const chips=document.getElementById('regionChips');
+    chips.innerHTML='';
+    const allChip=document.createElement('div');
+    allChip.className='region-chip all'+(selectedRegion==='__all__'?' active':'');
+    allChip.textContent='全部';
+    allChip.addEventListener('click',()=>{selectedRegion='__all__'; renderRegionFilter(allData);});
     chips.appendChild(allChip);
-
-    // 各地區
-    regions.forEach(r => {
-      const chip = document.createElement('div');
-      chip.className = 'region-chip' + (selectedRegion === r ? ' active' : '');
-      chip.textContent = r;
-      chip.addEventListener('click', () => { selectedRegion = r; renderRegionFilter(allData); });
+    regions.forEach(r=>{
+      const chip=document.createElement('div');
+      chip.className='region-chip'+(selectedRegion===r?' active':'');
+      chip.textContent=r;
+      chip.addEventListener('click',()=>{selectedRegion=r; renderRegionFilter(allData);});
       chips.appendChild(chip);
     });
-
     document.getElementById('regionFilter').classList.add('show');
   }
 
   async function fetchCSV(sheetId, sheetName) {
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-    const res = await fetch(url);
+    const res=await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`);
     if (!res.ok) throw new Error(`無法讀取「${sheetName}」`);
     return res.text();
   }
 
   function parseCSV(text) {
-    const rows = [];
-    let current = '', inQuotes = false, row = [];
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (ch === '"') {
-        if (inQuotes && text[i+1] === '"') { current += '"'; i++; }
-        else inQuotes = !inQuotes;
-      } else if (ch === ',' && !inQuotes) { row.push(current); current = ''; }
-      else if ((ch === '\n' || ch === '\r') && !inQuotes) {
-        if (current || row.length) { row.push(current); rows.push(row); }
-        current = ''; row = [];
-        if (ch === '\r' && text[i+1] === '\n') i++;
-      } else current += ch;
+    const rows=[]; let current='',inQuotes=false,row=[];
+    for (let i=0;i<text.length;i++) {
+      const ch=text[i];
+      if (ch==='"') { if (inQuotes&&text[i+1]==='"'){current+='"';i++;} else inQuotes=!inQuotes; }
+      else if (ch===','&&!inQuotes){row.push(current);current='';}
+      else if ((ch==='\n'||ch==='\r')&&!inQuotes){if(current||row.length){row.push(current);rows.push(row);}current='';row=[];if(ch==='\r'&&text[i+1]==='\n')i++;}
+      else current+=ch;
     }
-    if (current || row.length) { row.push(current); rows.push(row); }
+    if (current||row.length){row.push(current);rows.push(row);}
     return rows;
   }
 
-  function applyFieldMap(obj, fieldMap) {
-    Object.entries(fieldMap).forEach(([src, dst]) => {
-      if ((!obj[dst] || obj[dst] === '') && obj[src]) obj[dst] = obj[src];
-    });
-    return obj;
-  }
+  function applyFieldMap(obj,fm){Object.entries(fm).forEach(([s,d])=>{if((!obj[d]||obj[d]==='')&&obj[s])obj[d]=obj[s];});return obj;}
 
   function parseDate(str) {
-    if (!str) return 0;
-    str = str.trim();
-    const ampm = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(上午|下午)\s*(\d{1,2}):(\d{2}):(\d{2})/);
-    if (ampm) {
-      let [, y, mo, d, ap, h, mi, s] = ampm;
-      h = parseInt(h); mo = parseInt(mo) - 1;
-      if (ap === '下午' && h !== 12) h += 12;
-      if (ap === '上午' && h === 12) h = 0;
-      return new Date(y, mo, d, h, mi, s).getTime();
-    }
-    const normal = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
-    if (normal) { const [, y, mo, d, h, mi, s] = normal; return new Date(y, parseInt(mo)-1, d, h, mi, s||0).getTime(); }
-    const dateOnly = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-    if (dateOnly) { const [, y, mo, d] = dateOnly; return new Date(y, parseInt(mo)-1, d).getTime(); }
+    if(!str)return 0; str=str.trim();
+    const ampm=str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(上午|下午)\s*(\d{1,2}):(\d{2}):(\d{2})/);
+    if(ampm){let[,y,mo,d,ap,h,mi,s]=ampm;h=parseInt(h);mo=parseInt(mo)-1;if(ap==='下午'&&h!==12)h+=12;if(ap==='上午'&&h===12)h=0;return new Date(y,mo,d,h,mi,s).getTime();}
+    const n=str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
+    if(n){const[,y,mo,d,h,mi,s]=n;return new Date(y,parseInt(mo)-1,d,h,mi,s||0).getTime();}
+    const do2=str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if(do2){const[,y,mo,d]=do2;return new Date(y,parseInt(mo)-1,d).getTime();}
     return 0;
   }
 
-  function findDateCol(hdrs) { return DATE_COLS.find(c => hdrs.includes(c)) || null; }
+  function findDateCol(hdrs){return DATE_COLS.find(c=>hdrs.includes(c))||null;}
 
-  function sortData(data, dateCol, combined) {
-    if (combined) {
-      return [...data].sort((a, b) => {
-        const orderDiff = ROW_TYPE_ORDER[a.__rowType] - ROW_TYPE_ORDER[b.__rowType];
-        if (orderDiff !== 0) return orderDiff;
-        return parseDate(b[dateCol]) - parseDate(a[dateCol]);
-      });
-    }
-    if (!dateCol) return data;
-    return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
+  function sortData(data,dateCol,combined){
+    if(combined){return [...data].sort((a,b)=>{const od=ROW_TYPE_ORDER[a.__rowType]-ROW_TYPE_ORDER[b.__rowType];return od!==0?od:parseDate(b[dateCol])-parseDate(a[dateCol]);});}
+    if(!dateCol)return data;
+    return [...data].sort((a,b)=>parseDate(b[dateCol])-parseDate(a[dateCol]));
   }
 
-  async function loadSingleSheet(sheetId, sheetName, defaultCols) {
-    setStatus('<span class="spinner"></span>載入中...', '');
-    try {
-      const text = await fetchCSV(sheetId, sheetName);
-      const rows = parseCSV(text);
-      if (!rows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
-      const rawHeaders = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
-      const validIdx = rawHeaders.map((h, i) => h ? i : -1).filter(i => i >= 0);
-      headers = validIdx.map(i => rawHeaders[i]);
-      allData = rows.slice(1).map(r =>
-        headers.reduce((obj, h, idx) => { obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim(); obj['__rowType'] = ''; return obj; }, {})
-      );
-      activeHeaders = defaultCols.length > 0 ? new Set(headers.filter(h => defaultCols.includes(h))) : new Set(headers);
-      if (activeHeaders.size === 0) activeHeaders = new Set(headers);
-      document.getElementById('legend').style.display = 'none';
-      if (currentMode === 'repair') renderRegionFilter(allData);
+  async function loadSingleSheet(sheetId,sheetName,defaultCols){
+    setStatus('<span class="spinner"></span>載入中...','');
+    try{
+      const rows=parseCSV(await fetchCSV(sheetId,sheetName));
+      if(!rows.length){setStatus('❌ 試算表是空的','error');return;}
+      const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
+      const vi=rh.map((h,i)=>h?i:-1).filter(i=>i>=0);
+      headers=vi.map(i=>rh[i]);
+      allData=rows.slice(1).map(r=>headers.reduce((obj,h,idx)=>{obj[h]=(r[vi[idx]]||'').replace(/^"|"$/g,'').trim();obj['__rowType']='';return obj;},{}));
+      activeHeaders=defaultCols.length>0?new Set(headers.filter(h=>defaultCols.includes(h))):new Set(headers);
+      if(activeHeaders.size===0)activeHeaders=new Set(headers);
+      document.getElementById('legend').style.display='none';
+      if(currentMode==='repair')renderRegionFilter(allData);
       finishLoad();
-    } catch(e) { setStatus('❌ ' + e.message, 'error'); }
+    }catch(e){setStatus('❌ '+e.message,'error');}
   }
 
-  async function loadCombinedSheets(group) {
-    setStatus('<span class="spinner"></span>載入彙總資料中...', '');
-    const sheets = COMBINED_SHEETS[group];
-    const isFuer = group === '阜爾';
-    try {
-      const results = await Promise.all(sheets.map(s => fetchCSV(SHEET_ID_REPAIR, s.name)));
-      let mergedHeaders = [], mergedData = [];
-      results.forEach((text, i) => {
-        const rows = parseCSV(text);
-        if (!rows.length) return;
-        const rawH = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
-        const validIdx = rawH.map((h, j) => h ? j : -1).filter(j => j >= 0);
-        const sheetHeaders = validIdx.map(j => rawH[j]);
-        sheetHeaders.forEach(h => { if (!mergedHeaders.includes(h)) mergedHeaders.push(h); });
-        const rowType = sheets[i].type;
-        rows.slice(1).forEach(r => {
-          const obj = { __rowType: rowType };
-          sheetHeaders.forEach((h, idx) => { obj[h] = (r[validIdx[idx]] || '').replace(/^"|"$/g, '').trim(); });
-          if (isFuer) applyFieldMap(obj, FUER_FIELD_MAP);
+  async function loadCombinedSheets(group){
+    setStatus('<span class="spinner"></span>載入彙總資料中...','');
+    const sheets=COMBINED_SHEETS[group]; const isFuer=group==='阜爾';
+    try{
+      const results=await Promise.all(sheets.map(s=>fetchCSV(SHEET_ID_REPAIR,s.name)));
+      let mergedHeaders=[],mergedData=[];
+      results.forEach((text,i)=>{
+        const rows=parseCSV(text); if(!rows.length)return;
+        const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
+        const vi=rh.map((h,j)=>h?j:-1).filter(j=>j>=0);
+        const sh=vi.map(j=>rh[j]);
+        sh.forEach(h=>{if(!mergedHeaders.includes(h))mergedHeaders.push(h);});
+        const rowType=sheets[i].type;
+        rows.slice(1).forEach(r=>{
+          const obj={__rowType:rowType};
+          sh.forEach((h,idx)=>{obj[h]=(r[vi[idx]]||'').replace(/^"|"$/g,'').trim();});
+          if(isFuer)applyFieldMap(obj,FUER_FIELD_MAP);
           mergedData.push(obj);
         });
       });
-      if (isFuer) {
-        Object.values(FUER_FIELD_MAP).forEach(dst => { if (!mergedHeaders.includes(dst)) mergedHeaders.unshift(dst); });
-      }
-      headers = mergedHeaders;
-      allData = mergedData;
-      if (isFuer) {
-        activeHeaders = new Set(headers.filter(h => FUER_DEFAULT_COLS.includes(h)));
-        if (activeHeaders.size === 0) activeHeaders = new Set(headers);
-      } else {
-        activeHeaders = new Set(headers);
-      }
-      document.getElementById('legend').style.display = 'flex';
+      if(isFuer)Object.values(FUER_FIELD_MAP).forEach(d=>{if(!mergedHeaders.includes(d))mergedHeaders.unshift(d);});
+      headers=mergedHeaders; allData=mergedData;
+      if(isFuer){activeHeaders=new Set(headers.filter(h=>FUER_DEFAULT_COLS.includes(h)));if(activeHeaders.size===0)activeHeaders=new Set(headers);}
+      else activeHeaders=new Set(headers);
+      document.getElementById('legend').style.display='flex';
       renderRegionFilter(allData);
       finishLoad();
-    } catch(e) { setStatus('❌ ' + e.message, 'error'); }
+    }catch(e){setStatus('❌ '+e.message,'error');}
   }
 
-  function finishLoad() {
+  function finishLoad(){
     renderColChips();
-    setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個欄位）— 選好欄位後按搜尋`, 'success');
-    document.getElementById('keyword').disabled = false;
-    document.getElementById('searchBtn').disabled = false;
-    document.getElementById('colSelector').style.display = 'block';
+    setStatus(`✅ 已載入 ${allData.length} 筆資料（${headers.length} 個欄位）— 選好欄位後按搜尋`,'success');
+    document.getElementById('keyword').disabled=false;
+    document.getElementById('searchBtn').disabled=false;
+    document.getElementById('colSelector').style.display='block';
     document.getElementById('keyword').focus();
   }
 
-  function renderColChips() {
-    const grid = document.getElementById('colGrid');
-    grid.innerHTML = '';
-    headers.forEach(h => {
-      const chip = document.createElement('div');
-      chip.className = 'col-chip' + (activeHeaders.has(h) ? ' active' : '');
-      chip.textContent = h;
-      chip.addEventListener('click', () => {
-        if (activeHeaders.has(h)) { if (activeHeaders.size <= 1) return; activeHeaders.delete(h); chip.classList.remove('active'); }
-        else { activeHeaders.add(h); chip.classList.add('active'); }
+  function renderColChips(){
+    const grid=document.getElementById('colGrid'); grid.innerHTML='';
+    headers.forEach(h=>{
+      const chip=document.createElement('div');
+      chip.className='col-chip'+(activeHeaders.has(h)?' active':'');
+      chip.textContent=h;
+      chip.addEventListener('click',()=>{
+        if(activeHeaders.has(h)){if(activeHeaders.size<=1)return;activeHeaders.delete(h);chip.classList.remove('active');}
+        else{activeHeaders.add(h);chip.classList.add('active');}
       });
       grid.appendChild(chip);
     });
   }
 
-  function selectAll() { activeHeaders = new Set(headers); renderColChips(); }
-  function selectNone() { activeHeaders = new Set([headers[0]]); renderColChips(); }
+  function selectAll(){activeHeaders=new Set(headers);renderColChips();}
+  function selectNone(){activeHeaders=new Set([headers[0]]);renderColChips();}
 
-  function doSearch() {
-    currentKw = document.getElementById('keyword').value.trim();
-    const kwLower = currentKw.toLowerCase();
+  function doSearch(){
+    currentKw=document.getElementById('keyword').value.trim();
+    const kwLower=currentKw.toLowerCase();
+    const regionFiltered=currentMode==='repair'?allData.filter(r=>matchRegion(r,selectedRegion)):allData;
+    const matched=currentKw?regionFiltered.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(kwLower))):regionFiltered;
+    filteredData=sortData(matched,findDateCol(headers),isCombined);
+    currentPage=1; renderPage();
+  }
 
-    // 先套用地區篩選
-    let regionFiltered = allData;
-    if (currentMode === 'repair' && selectedRegion !== '__all__') {
-      regionFiltered = allData.filter(r => {
-        const region = r[REGION_COL] || '';
-        const station = r['場站'] || '';
-        return region === selectedRegion || station.includes(selectedRegion);
-      });
-    }
-
-    // 再套用關鍵字
-    const matched = currentKw
-      ? regionFiltered.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower)))
-      : regionFiltered;
-
-    const dateCol = findDateCol(headers);
-    filteredData = sortData(matched, dateCol, isCombined);
-    currentPage = 1;
+  function setPerPage(n){
+    perPage=n;currentPage=1;
+    document.querySelectorAll('.per-page-btn').forEach(b=>b.classList.toggle('active',parseInt(b.textContent)===n));
     renderPage();
   }
 
-  function setPerPage(n) {
-    perPage = n;
-    currentPage = 1;
-    document.querySelectorAll('.per-page-btn').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === n));
-    renderPage();
-  }
+  function goToPage(p){currentPage=p;renderPage();document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});}
 
-  function goToPage(p) {
-    currentPage = p;
-    renderPage();
-    document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function renderPage() {
-    const total = filteredData.length;
-    const totalPages = Math.max(1, Math.ceil(total / perPage));
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage - 1) * perPage;
-    const pageRows = filteredData.slice(start, start + perPage);
-    const visibleHeaders = headers.filter(h => activeHeaders.has(h));
-    const dateCol = findDateCol(visibleHeaders);
-    const wrap = document.getElementById('tableWrap');
-
-    document.getElementById('resultsCard').style.display = 'block';
-    document.getElementById('countBadge').textContent = total + ' 筆';
-
-    if (!total) {
-      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合條件的資料</p></div>`;
-      document.getElementById('paginationBar').style.display = 'none';
-      return;
-    }
-
-    const tbody = document.createElement('tbody');
-    pageRows.forEach(r => {
-      const tr = document.createElement('tr');
-      const rt = r.__rowType;
-      tr.classList.add(rt === 'undone' ? 'row-undone' : rt === 'done' ? 'row-done' : 'row-history');
-      visibleHeaders.forEach(h => {
-        const td = document.createElement('td');
-        const v = String(r[h] ?? '');
-        td.dataset.label = h;
-        td.dataset.value = v;
-        td.innerHTML = highlight(v, currentKw);
-        tr.appendChild(td);
-      });
+  function renderPage(){
+    const total=filteredData.length;
+    const totalPages=Math.max(1,Math.ceil(total/perPage));
+    if(currentPage>totalPages)currentPage=totalPages;
+    const start=(currentPage-1)*perPage;
+    const pageRows=filteredData.slice(start,start+perPage);
+    const visibleHeaders=headers.filter(h=>activeHeaders.has(h));
+    const dateCol=findDateCol(visibleHeaders);
+    const wrap=document.getElementById('tableWrap');
+    document.getElementById('resultsCard').style.display='block';
+    document.getElementById('countBadge').textContent=total+' 筆';
+    if(!total){wrap.innerHTML=`<div class="empty-state"><div class="icon">🔍</div><p>找不到符合條件的資料</p></div>`;document.getElementById('paginationBar').style.display='none';return;}
+    const tbody=document.createElement('tbody');
+    pageRows.forEach(r=>{
+      const tr=document.createElement('tr');
+      const rt=r.__rowType;
+      tr.classList.add(rt==='undone'?'row-undone':rt==='done'?'row-done':'row-history');
+      visibleHeaders.forEach(h=>{const td=document.createElement('td');const v=String(r[h]??'');td.dataset.label=h;td.dataset.value=v;td.innerHTML=highlight(v,currentKw);tr.appendChild(td);});
       tbody.appendChild(tr);
     });
-
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    thead.innerHTML = '<tr>' + visibleHeaders.map(h =>
-      `<th class="${h === dateCol ? 'sort-col' : ''}">${escHtml(h)}</th>`
-    ).join('') + '</tr>';
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    wrap.innerHTML = '';
-    wrap.appendChild(table);
-
-    document.getElementById('paginationBar').style.display = 'flex';
-    document.getElementById('pageInfo').textContent = `第 ${start+1}–${Math.min(start+perPage, total)} 筆，共 ${total} 筆`;
-
-    const nav = document.getElementById('pageNav');
-    nav.innerHTML = '';
-    const addBtn = (label, page, disabled, active) => {
-      const b = document.createElement('button');
-      b.className = 'page-btn' + (active ? ' active' : '');
-      b.textContent = label;
-      b.disabled = disabled;
-      if (!disabled) b.onclick = () => goToPage(page);
-      nav.appendChild(b);
-    };
-    addBtn('‹', currentPage - 1, currentPage === 1, false);
-    let startP = Math.max(1, currentPage - 2);
-    let endP = Math.min(totalPages, startP + 4);
-    if (endP - startP < 4) startP = Math.max(1, endP - 4);
-    for (let p = startP; p <= endP; p++) addBtn(p, p, false, p === currentPage);
-    addBtn('›', currentPage + 1, currentPage === totalPages, false);
-
-    const regionLabel = selectedRegion === '__all__' ? '全部地區' : selectedRegion;
-    const kwLabel = currentKw ? `「${currentKw}」` : '所有資料';
-    setStatus(`${regionLabel} × ${kwLabel}：找到 ${total} 筆`, 'success');
+    const table=document.createElement('table');
+    const thead=document.createElement('thead');
+    thead.innerHTML='<tr>'+visibleHeaders.map(h=>`<th class="${h===dateCol?'sort-col':''}">${escHtml(h)}</th>`).join('')+'</tr>';
+    table.appendChild(thead);table.appendChild(tbody);wrap.innerHTML='';wrap.appendChild(table);
+    document.getElementById('paginationBar').style.display='flex';
+    document.getElementById('pageInfo').textContent=`第 ${start+1}–${Math.min(start+perPage,total)} 筆，共 ${total} 筆`;
+    const nav=document.getElementById('pageNav'); nav.innerHTML='';
+    const addBtn=(label,page,disabled,active)=>{const b=document.createElement('button');b.className='page-btn'+(active?' active':'');b.textContent=label;b.disabled=disabled;if(!disabled)b.onclick=()=>goToPage(page);nav.appendChild(b);};
+    addBtn('‹',currentPage-1,currentPage===1,false);
+    let startP=Math.max(1,currentPage-2),endP=Math.min(totalPages,startP+4);
+    if(endP-startP<4)startP=Math.max(1,endP-4);
+    for(let p=startP;p<=endP;p++)addBtn(p,p,false,p===currentPage);
+    addBtn('›',currentPage+1,currentPage===totalPages,false);
+    const rLabel=selectedRegion==='__all__'?'全部地區':selectedRegion;
+    const kLabel=currentKw?`「${currentKw}」`:'所有資料';
+    setStatus(`${rLabel} × ${kLabel}：找到 ${total} 筆`,'success');
   }
 
-  function openPopup(label, content) {
-    currentCopyText = content;
-    document.getElementById('popupLabel').textContent = label;
-    document.getElementById('popupContent').textContent = content || '（空白）';
-    document.getElementById('copyBtn').textContent = '複製';
+  function openPopup(label,content){
+    currentCopyText=content;
+    document.getElementById('popupLabel').textContent=label;
+    document.getElementById('popupContent').textContent=content||'（空白）';
+    document.getElementById('copyBtn').textContent='複製';
     document.getElementById('copyBtn').classList.remove('copied');
     document.getElementById('popupOverlay').classList.add('show');
   }
-
-  function closePopupDirect() { document.getElementById('popupOverlay').classList.remove('show'); }
-
-  function copyContent() {
-    navigator.clipboard.writeText(currentCopyText).then(() => {
-      const btn = document.getElementById('copyBtn');
-      btn.textContent = '已複製！';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 2000);
+  function closePopupDirect(){document.getElementById('popupOverlay').classList.remove('show');}
+  function copyContent(){
+    navigator.clipboard.writeText(currentCopyText).then(()=>{
+      const btn=document.getElementById('copyBtn');btn.textContent='已複製！';btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='複製';btn.classList.remove('copied');},2000);
     });
   }
-
-  function highlight(text, kw) {
-    if (!kw) return escHtml(text);
-    return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '<mark>' + m + '</mark>');
-  }
-
-  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-  function setStatus(msg, type) {
-    const el = document.getElementById('status');
-    el.innerHTML = msg;
-    el.className = 'status ' + (type || '');
-  }
+  function highlight(text,kw){if(!kw)return escHtml(text);return escHtml(text).replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>');}
+  function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function setStatus(msg,type){const el=document.getElementById('status');el.innerHTML=msg;el.className='status '+(type||'');}
 </script>
 </body>
 </html>
