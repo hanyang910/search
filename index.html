@@ -35,6 +35,18 @@
     .btn-outline { background: white; border: 1px solid #e2e8f0; color: #4a5568; }
     .btn-outline:hover { background: #f7fafc; }
 
+    /* 地區篩選器 */
+    .region-filter { display: none; margin-bottom: 16px; background: white; border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .region-filter.show { display: block; }
+    .region-filter-label { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .region-filter-label span { font-size: 11px; font-weight: 400; color: #a0aec0; }
+    .region-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .region-chip { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #4a5568; transition: all 0.15s; white-space: nowrap; user-select: none; }
+    .region-chip.active { background: #e53e3e; border-color: #e53e3e; color: white; font-weight: 600; }
+    .region-chip.all.active { background: #718096; border-color: #718096; color: white; }
+    .region-chip:not(.active):hover { border-color: #fc8181; background: #fff5f5; color: #c53030; }
+    .region-chip.all:not(.active):hover { border-color: #a0aec0; background: #f7fafc; color: #2d3748; }
+
     .search-input { width: 100%; padding: 12px 16px; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: border-color 0.2s; color: #2d3748; }
     .search-input:focus { border-color: #4299e1; }
     .search-input::placeholder { color: #a0aec0; }
@@ -135,6 +147,15 @@
     <div class="sheet-tab combined" data-type="combined" data-group="中控">🔀 中控彙總</div>
   </div>
 
+  <!-- 地區篩選器（只在報修系統顯示） -->
+  <div class="region-filter" id="regionFilter">
+    <div class="region-filter-label">
+      📍 地區篩選
+      <span>選擇地區後再按搜尋</span>
+    </div>
+    <div class="region-chips" id="regionChips"></div>
+  </div>
+
   <div class="card">
     <div class="col-selector" id="colSelector">
       <h4>
@@ -215,6 +236,8 @@
   };
   const DATE_COLS = ['日期/時間', '時間戳記', '日期', '時間'];
   const ROW_TYPE_ORDER = { undone: 0, done: 1, history: 2 };
+  const DEFAULT_REGION = '台南市';
+  const REGION_COL = '地區';
 
   let currentMode = 'station';
   let currentTabType = 'single';
@@ -226,57 +249,7 @@
   let currentKw = '';
   let currentCopyText = '';
   let isCombined = false;
-
-  // 解析中文 AM/PM 日期格式
-  // 支援：2026/4/19 上午 11:55:03、2026/4/19 下午 1:30:00、2026/04/19 14:30:00 等
-  function parseDate(str) {
-    if (!str) return 0;
-    str = str.trim();
-
-    // 含「上午」或「下午」的格式
-    const ampm = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(上午|下午)\s*(\d{1,2}):(\d{2}):(\d{2})/);
-    if (ampm) {
-      let [, y, mo, d, ap, h, mi, s] = ampm;
-      h = parseInt(h); mo = parseInt(mo) - 1;
-      if (ap === '下午' && h !== 12) h += 12;
-      if (ap === '上午' && h === 12) h = 0;
-      return new Date(y, mo, d, h, mi, s).getTime();
-    }
-
-    // 一般格式 yyyy/MM/dd HH:mm:ss
-    const normal = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
-    if (normal) {
-      const [, y, mo, d, h, mi, s] = normal;
-      return new Date(y, parseInt(mo)-1, d, h, mi, s||0).getTime();
-    }
-
-    // 只有日期 yyyy/MM/dd
-    const dateOnly = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-    if (dateOnly) {
-      const [, y, mo, d] = dateOnly;
-      return new Date(y, parseInt(mo)-1, d).getTime();
-    }
-
-    return 0;
-  }
-
-  function findDateCol(hdrs) {
-    return DATE_COLS.find(c => hdrs.includes(c)) || null;
-  }
-
-  // 排序：彙總頁先依狀態分組，組內依日期新到舊；一般頁只依日期新到舊
-  function sortData(data, dateCol, combined) {
-    if (combined) {
-      return [...data].sort((a, b) => {
-        const orderDiff = ROW_TYPE_ORDER[a.__rowType] - ROW_TYPE_ORDER[b.__rowType];
-        if (orderDiff !== 0) return orderDiff;
-        return parseDate(b[dateCol]) - parseDate(a[dateCol]);
-      });
-    } else {
-      if (!dateCol) return data;
-      return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
-    }
-  }
+  let selectedRegion = DEFAULT_REGION; // '__all__' 代表全部
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -313,6 +286,14 @@
       b.classList.toggle('active', (i === 0 && mode === 'station') || (i === 1 && mode === 'repair'));
     });
     document.getElementById('repairTabs').classList.toggle('show', mode === 'repair');
+
+    // 地區篩選器只在報修系統顯示
+    if (mode === 'repair') {
+      selectedRegion = DEFAULT_REGION;
+    } else {
+      document.getElementById('regionFilter').classList.remove('show');
+    }
+
     resetResults();
     if (mode === 'station') {
       isCombined = false;
@@ -338,6 +319,32 @@
     document.getElementById('keyword').disabled = true;
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('keyword').value = '';
+  }
+
+  // 從資料中抓取所有地區，渲染篩選器
+  function renderRegionFilter(data) {
+    if (currentMode !== 'repair') return;
+    const regions = [...new Set(data.map(r => r[REGION_COL] || '').filter(v => v))].sort();
+    const chips = document.getElementById('regionChips');
+    chips.innerHTML = '';
+
+    // 全部
+    const allChip = document.createElement('div');
+    allChip.className = 'region-chip all' + (selectedRegion === '__all__' ? ' active' : '');
+    allChip.textContent = '全部';
+    allChip.addEventListener('click', () => { selectedRegion = '__all__'; renderRegionFilter(allData); });
+    chips.appendChild(allChip);
+
+    // 各地區
+    regions.forEach(r => {
+      const chip = document.createElement('div');
+      chip.className = 'region-chip' + (selectedRegion === r ? ' active' : '');
+      chip.textContent = r;
+      chip.addEventListener('click', () => { selectedRegion = r; renderRegionFilter(allData); });
+      chips.appendChild(chip);
+    });
+
+    document.getElementById('regionFilter').classList.add('show');
   }
 
   async function fetchCSV(sheetId, sheetName) {
@@ -373,6 +380,38 @@
     return obj;
   }
 
+  function parseDate(str) {
+    if (!str) return 0;
+    str = str.trim();
+    const ampm = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(上午|下午)\s*(\d{1,2}):(\d{2}):(\d{2})/);
+    if (ampm) {
+      let [, y, mo, d, ap, h, mi, s] = ampm;
+      h = parseInt(h); mo = parseInt(mo) - 1;
+      if (ap === '下午' && h !== 12) h += 12;
+      if (ap === '上午' && h === 12) h = 0;
+      return new Date(y, mo, d, h, mi, s).getTime();
+    }
+    const normal = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
+    if (normal) { const [, y, mo, d, h, mi, s] = normal; return new Date(y, parseInt(mo)-1, d, h, mi, s||0).getTime(); }
+    const dateOnly = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if (dateOnly) { const [, y, mo, d] = dateOnly; return new Date(y, parseInt(mo)-1, d).getTime(); }
+    return 0;
+  }
+
+  function findDateCol(hdrs) { return DATE_COLS.find(c => hdrs.includes(c)) || null; }
+
+  function sortData(data, dateCol, combined) {
+    if (combined) {
+      return [...data].sort((a, b) => {
+        const orderDiff = ROW_TYPE_ORDER[a.__rowType] - ROW_TYPE_ORDER[b.__rowType];
+        if (orderDiff !== 0) return orderDiff;
+        return parseDate(b[dateCol]) - parseDate(a[dateCol]);
+      });
+    }
+    if (!dateCol) return data;
+    return [...data].sort((a, b) => parseDate(b[dateCol]) - parseDate(a[dateCol]));
+  }
+
   async function loadSingleSheet(sheetId, sheetName, defaultCols) {
     setStatus('<span class="spinner"></span>載入中...', '');
     try {
@@ -388,6 +427,7 @@
       activeHeaders = defaultCols.length > 0 ? new Set(headers.filter(h => defaultCols.includes(h))) : new Set(headers);
       if (activeHeaders.size === 0) activeHeaders = new Set(headers);
       document.getElementById('legend').style.display = 'none';
+      if (currentMode === 'repair') renderRegionFilter(allData);
       finishLoad();
     } catch(e) { setStatus('❌ ' + e.message, 'error'); }
   }
@@ -426,6 +466,7 @@
         activeHeaders = new Set(headers);
       }
       document.getElementById('legend').style.display = 'flex';
+      renderRegionFilter(allData);
       finishLoad();
     } catch(e) { setStatus('❌ ' + e.message, 'error'); }
   }
@@ -460,9 +501,22 @@
   function doSearch() {
     currentKw = document.getElementById('keyword').value.trim();
     const kwLower = currentKw.toLowerCase();
+
+    // 先套用地區篩選
+    let regionFiltered = allData;
+    if (currentMode === 'repair' && selectedRegion !== '__all__') {
+      regionFiltered = allData.filter(r => {
+        const region = r[REGION_COL] || '';
+        const station = r['場站'] || '';
+        return region === selectedRegion || station.includes(selectedRegion);
+      });
+    }
+
+    // 再套用關鍵字
     const matched = currentKw
-      ? allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower)))
-      : allData;
+      ? regionFiltered.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(kwLower)))
+      : regionFiltered;
+
     const dateCol = findDateCol(headers);
     filteredData = sortData(matched, dateCol, isCombined);
     currentPage = 1;
@@ -496,7 +550,7 @@
     document.getElementById('countBadge').textContent = total + ' 筆';
 
     if (!total) {
-      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合「${escHtml(currentKw)}」的資料</p></div>`;
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>找不到符合條件的資料</p></div>`;
       document.getElementById('paginationBar').style.display = 'none';
       return;
     }
@@ -547,7 +601,9 @@
     for (let p = startP; p <= endP; p++) addBtn(p, p, false, p === currentPage);
     addBtn('›', currentPage + 1, currentPage === totalPages, false);
 
-    setStatus(`找到 ${total} 筆符合「${escHtml(currentKw)}」的資料`, 'success');
+    const regionLabel = selectedRegion === '__all__' ? '全部地區' : selectedRegion;
+    const kwLabel = currentKw ? `「${currentKw}」` : '所有資料';
+    setStatus(`${regionLabel} × ${kwLabel}：找到 ${total} 筆`, 'success');
   }
 
   function openPopup(label, content) {
