@@ -230,10 +230,11 @@
   function matchRegion(row, region) {
     if (region === '__all__') return true;
     const kw = getRegionKeyword(region);
-    const rowRegion = row[REGION_COL] || '';
+    const rowRegion = row['地區'] || '';
+    const rowArea   = row['區域'] || ''; // 部分工作表欄位名稱為「區域」
     const rowStation = row[STATION_COL] || '';
-    // 地區欄完全符合 OR 場站名稱包含關鍵字（例如「台南」）
-    return rowRegion === region || rowStation.includes(kw);
+    // 「地區」或「區域」欄完全符合，OR 場站名稱包含關鍵字
+    return rowRegion === region || rowArea === region || rowStation.includes(kw);
   }
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
@@ -288,7 +289,7 @@
 
   function renderRegionFilter(data) {
     if (currentMode!=='repair') return;
-    const regions=[...new Set(data.map(r=>r[REGION_COL]||'').filter(v=>v))].sort();
+    const regions=[...new Set(data.flatMap(r=>[r['地區']||'',r['區域']||'']).filter(v=>v))].sort();
     const chips=document.getElementById('regionChips');
     chips.innerHTML='';
     const allChip=document.createElement('div');
