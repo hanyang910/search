@@ -289,7 +289,12 @@
 
   function renderRegionFilter(data) {
     if (currentMode!=='repair') return;
-    const regions=[...new Set(data.flatMap(r=>[r['地區']||'',r['區域']||'']).filter(v=>v))].sort();
+    const allRegions=[...new Set(data.flatMap(r=>[r['地區']||'',r['區域']||'']).filter(v=>v))];
+    // 縣市結尾的排前面，其他（人名等）排後面，各自再按字母排序
+    const isCityName = v => REGION_SUFFIX.some(s => v.endsWith(s));
+    const cities = allRegions.filter(v =>  isCityName(v)).sort();
+    const others = allRegions.filter(v => !isCityName(v)).sort();
+    const regions = [...cities, ...others];
     const chips=document.getElementById('regionChips');
     chips.innerHTML='';
     const allChip=document.createElement('div');
