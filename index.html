@@ -217,7 +217,7 @@
   let currentMode='station', currentTabType='single', currentGroup='';
   let allData=[], headers=[], activeHeaders=new Set();
   let filteredData=[], currentPage=1, perPage=30, currentKw='', currentCopyText='';
-  let isCombined=false, selectedRegion=DEFAULT_REGION;
+  let isCombined=false, selectedRegion=new Set([DEFAULT_REGION]);
 
   // 去除縣市字尾，取得比對場站用的關鍵字
   // 例如：台南市 → 台南、高雄市 → 高雄、新北市 → 新北
@@ -227,14 +227,17 @@
     return kw;
   }
 
-  function matchRegion(row, region) {
-    if (region === '__all__') return true;
-    const kw = getRegionKeyword(region);
-    const rowRegion = row['地區'] || '';
-    const rowArea   = row['區域'] || ''; // 部分工作表欄位名稱為「區域」
+  function matchRegion(row, regions) {
+    if (regions.size === 0) return true; // 全不選時顯示全部
+    const rowRegion  = row['地區'] || '';
+    const rowArea    = row['區域'] || '';
     const rowStation = row[STATION_COL] || '';
-    // 「地區」或「區域」欄完全符合，OR 場站名稱包含關鍵字
-    return rowRegion === region || rowArea === region || rowStation.includes(kw);
+    // 任一選取地區符合即可
+    for (const region of regions) {
+      const kw = getRegionKeyword(region);
+      if (rowRegion === region || rowArea === region || rowStation.includes(kw)) return true;
+    }
+    return false;
   }
 
   document.querySelectorAll('.sheet-tab').forEach(tab => {
@@ -260,7 +263,7 @@
     currentMode = mode;
     document.querySelectorAll('.switch-btn').forEach((b,i) => b.classList.toggle('active',(i===0&&mode==='station')||(i===1&&mode==='repair')));
     document.getElementById('repairTabs').classList.toggle('show', mode==='repair');
-    if (mode==='repair') { selectedRegion=DEFAULT_REGION; } else { document.getElementById('regionFilter').classList.remove('show'); }
+    if (mode==='repair') { selectedRegion=new Set([DEFAULT_REGION]); } else { document.getElementById('regionFilter').classList.remove('show'); }
     resetResults();
     if (mode==='station') { isCombined=false; loadSingleSheet(SHEET_ID_STATION,'總表',STATION_DEFAULT_COLS); }
     else {
@@ -290,23 +293,36 @@
   function renderRegionFilter(data) {
     if (currentMode!=='repair') return;
     const allRegions=[...new Set(data.flatMap(r=>[r['地區']||'',r['區域']||'']).filter(v=>v))];
-    // 縣市結尾的排前面，其他（人名等）排後面，各自再按字母排序
     const isCityName = v => REGION_SUFFIX.some(s => v.endsWith(s));
     const cities = allRegions.filter(v =>  isCityName(v)).sort();
     const others = allRegions.filter(v => !isCityName(v)).sort();
     const regions = [...cities, ...others];
     const chips=document.getElementById('regionChips');
     chips.innerHTML='';
+
+    // 「全部」按鈕：點了就清空選取（顯示全部）
     const allChip=document.createElement('div');
-    allChip.className='region-chip all'+(selectedRegion==='__all__'?' active':'');
+    const isAllSelected = selectedRegion.size===0;
+    allChip.className='region-chip all'+(isAllSelected?' active':'');
     allChip.textContent='全部';
-    allChip.addEventListener('click',()=>{selectedRegion='__all__'; renderRegionFilter(allData);});
+    allChip.addEventListener('click',()=>{
+      selectedRegion=new Set(); // 清空 = 全部
+      renderRegionFilter(allData);
+    });
     chips.appendChild(allChip);
+
     regions.forEach(r=>{
       const chip=document.createElement('div');
-      chip.className='region-chip'+(selectedRegion===r?' active':'');
+      chip.className='region-chip'+(selectedRegion.has(r)?' active':'');
       chip.textContent=r;
-      chip.addEventListener('click',()=>{selectedRegion=r; renderRegionFilter(allData);});
+      chip.addEventListener('click',()=>{
+        if (selectedRegion.has(r)) {
+          selectedRegion.delete(r);
+        } else {
+          selectedRegion.add(r);
+        }
+        renderRegionFilter(allData);
+      });
       chips.appendChild(chip);
     });
     document.getElementById('regionFilter').classList.add('show');
@@ -475,7 +491,7 @@
     if(endP-startP<4)startP=Math.max(1,endP-4);
     for(let p=startP;p<=endP;p++)addBtn(p,p,false,p===currentPage);
     addBtn('›',currentPage+1,currentPage===totalPages,false);
-    const rLabel=selectedRegion==='__all__'?'全部地區':selectedRegion;
+    const rLabel=selectedRegion.size===0?'全部地區':[...selectedRegion].join('、');
     const kLabel=currentKw?`「${currentKw}」`:'所有資料';
     setStatus(`${rLabel} × ${kLabel}：找到 ${total} 筆`,'success');
   }
