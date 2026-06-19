@@ -117,7 +117,7 @@
     <p>快速搜尋 Google 試算表中的任何資料</p>
   </header>
   <div class="switcher">
-    <button class="switch-btn active" onclick="switchSheet('station')">📊 場站總表</button>
+    <button class="switch-btn active" onclick="switchSheet('station')">📊 場站總表（202601前資料）</button>
     <button class="switch-btn" onclick="switchSheet('repair')">🔧 報修系統</button>
   </div>
   <div class="sheet-tabs" id="repairTabs">
@@ -200,7 +200,7 @@
 <script>
   const SHEET_ID_STATION = '1OxL88rkn_nzDhe3fYtZ96wyWNYqOP-ks';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
-  const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','派工保全'];
+  const STATION_DEFAULT_COLS = ['公司','場地代號','場地區域','淡大名稱','場地地址','臨停費率(一般) 小時','臨停費率(一般) 上限'];
   const FUER_FIELD_MAP = {'時間戳記':'日期/時間','場地代號':'場代','場站名稱':'場站','區域':'地區'};
   const FUER_DEFAULT_COLS = ['日期/時間','地區','場代','場站','問題描述','報修人','聯絡電話','回覆業主','回覆人','回覆內容','PASS','PASS人','PASS備註','處理人','處理結果&備註'];
   const COMBINED_SHEETS = {
