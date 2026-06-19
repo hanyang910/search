@@ -377,7 +377,11 @@
       const vi=rh.map((h,i)=>h?i:-1).filter(i=>i>=0);
       headers=vi.map(i=>rh[i]);
       allData=rows.slice(1).map(r=>headers.reduce((obj,h,idx)=>{obj[h]=(r[vi[idx]]||'').replace(/^"|"$/g,'').trim();obj['__rowType']='';return obj;},{}));
-      activeHeaders=defaultCols.length>0?new Set(headers.filter(h=>defaultCols.includes(h))):new Set(headers);
+      // 使用標準化比對，處理 Excel 欄位名稱可能有多餘空白或特殊字元
+      const normalize = s => s.trim().replace(/[\s　 ]+/g, ' ');
+      activeHeaders=defaultCols.length>0
+        ? new Set(headers.filter(h => defaultCols.some(d => normalize(h) === normalize(d))))
+        : new Set(headers);
       if(activeHeaders.size===0)activeHeaders=new Set(headers);
       document.getElementById('legend').style.display='none';
       if(currentMode==='repair')renderRegionFilter(allData);
