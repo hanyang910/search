@@ -477,8 +477,15 @@
   function doSearch(){
     currentKw=document.getElementById('keyword').value.trim();
     const kwLower=currentKw.toLowerCase();
-    // 場站總表不套用地區篩選，直接使用全部資料
-    const regionFiltered = (currentMode==='repair' && selectedRegion.size>0) ? allData.filter(r=>matchRegion(r,selectedRegion)) : allData;
+    // 場站總表：直接用全部資料，完全不套用地區篩選
+    let regionFiltered;
+    if (currentMode !== 'repair') {
+      regionFiltered = allData;
+    } else if (selectedRegion.size === 0) {
+      regionFiltered = allData;
+    } else {
+      regionFiltered = allData.filter(r => matchRegion(r, selectedRegion));
+    }
     const matched=currentKw?regionFiltered.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(kwLower))):regionFiltered;
     filteredData=sortData(matched,findDateCol(headers),isCombined);
     currentPage=1; renderPage();
@@ -525,9 +532,15 @@
     if(endP-startP<4)startP=Math.max(1,endP-4);
     for(let p=startP;p<=endP;p++)addBtn(p,p,false,p===currentPage);
     addBtn('›',currentPage+1,currentPage===totalPages,false);
-    const rLabel=selectedRegion.size===0?'全部地區':[...selectedRegion].join('、');
-    const kLabel=currentKw?`「${currentKw}」`:'所有資料';
-    setStatus(`${rLabel} × ${kLabel}：找到 ${total} 筆`,'success');
+    let statusLabel;
+    if (currentMode !== 'repair') {
+      statusLabel = currentKw ? `找到 ${total} 筆符合「${currentKw}」的資料` : `共 ${total} 筆資料`;
+    } else {
+      const rLabel = selectedRegion.size===0 ? '全部地區' : [...selectedRegion].join('、');
+      const kLabel = currentKw ? `「${currentKw}」` : '所有資料';
+      statusLabel = `${rLabel} × ${kLabel}：找到 ${total} 筆`;
+    }
+    setStatus(statusLabel, 'success');
   }
 
   function openPopup(label,content){
