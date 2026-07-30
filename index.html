@@ -268,7 +268,7 @@
     currentMode = mode;
     document.querySelectorAll('.switch-btn').forEach((b,i) => b.classList.toggle('active',(i===0&&mode==='station')||(i===1&&mode==='repair')));
     document.getElementById('repairTabs').classList.toggle('show', mode==='repair');
-    if (mode==='repair') { selectedRegion=new Set([DEFAULT_REGION]); } else { document.getElementById('regionFilter').classList.remove('show'); }
+    if (mode==='repair') { selectedRegion=new Set([DEFAULT_REGION]); } else { selectedRegion=new Set(); document.getElementById('regionFilter').classList.remove('show'); }
     resetResults();
     if (mode==='station') { isCombined=false; loadSingleSheet(SHEET_ID_STATION,'總表',STATION_DEFAULT_COLS); }
     else {
@@ -477,7 +477,8 @@
   function doSearch(){
     currentKw=document.getElementById('keyword').value.trim();
     const kwLower=currentKw.toLowerCase();
-    const regionFiltered=currentMode==='repair'?allData.filter(r=>matchRegion(r,selectedRegion)):allData;
+    // 場站總表不套用地區篩選，直接使用全部資料
+    const regionFiltered = (currentMode==='repair' && selectedRegion.size>0) ? allData.filter(r=>matchRegion(r,selectedRegion)) : allData;
     const matched=currentKw?regionFiltered.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(kwLower))):regionFiltered;
     filteredData=sortData(matched,findDateCol(headers),isCombined);
     currentPage=1; renderPage();
