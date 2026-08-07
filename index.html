@@ -203,6 +203,7 @@
 
 <script>
   const SHEET_ID_STATION = '1gq0qZzwbKZY7uLzpKwEmcFAr4D3SUttcTwWqkaOTAKY';
+  const STATION_API_URL = 'https://script.google.com/macros/s/AKfycbxehBaPOGB6eg9ObDBnnoZcT54eW4LMMKTgj6lthbjK6HaiKhhznn1CegiyKTjLovH-dQ/exec';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','臨停費率(一般) 小時','臨停費率(一般) 上限'];
   const FUER_FIELD_MAP = {'時間戳記':'日期/時間','場地代號':'場代','場站名稱':'場站','區域':'地區'};
@@ -377,6 +378,11 @@
   async function loadSingleSheet(sheetId,sheetName,defaultCols){
     setStatus('<span class="spinner"></span>載入中...','');
     try{
+      // 場站總表改用 Apps Script API 讀取（支援需要權限的試算表）
+      if (sheetId === SHEET_ID_STATION) {
+        await loadStationFromAPI(defaultCols);
+        return;
+      }
       const rows=parseCSV(await fetchCSV(sheetId,sheetName));
       if(!rows.length){setStatus('❌ 試算表是空的','error');return;}
       const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
@@ -393,6 +399,34 @@
       if(currentMode==='repair')renderRegionFilter(allData);
       finishLoad();
     }catch(e){setStatus('❌ '+e.message,'error');}
+  }
+
+  async function loadStationFromAPI(defaultCols) {
+    try {
+      const res = await fetch(STATION_API_URL);
+      if (!res.ok) throw new Error('無法讀取場站總表 API');
+      const jsonData = await res.json();
+      if (!jsonData.length) { setStatus('❌ 場站總表是空的', 'error'); return; }
+
+      // 從第一筆資料取得欄位名稱，過濾空白欄位
+      headers = Object.keys(jsonData[0]).filter(h => h.trim() !== '');
+      allData = jsonData.map(r => {
+        const obj = { __rowType: '' };
+        headers.forEach(h => { obj[h] = r[h] !== undefined ? String(r[h]) : ''; });
+        return obj;
+      });
+
+      const normalize = s => s.trim().replace(/[\s\u3000\xa0]+/g, ' ');
+      activeHeaders = defaultCols.length > 0
+        ? new Set(headers.filter(h => defaultCols.some(d => normalize(h) === normalize(d))))
+        : new Set(headers);
+      if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+
+      document.getElementById('legend').style.display = 'none';
+      finishLoad();
+    } catch(e) {
+      setStatus('❌ ' + e.message, 'error');
+    }
   }
 
   async function loadCombinedSheets(group){
