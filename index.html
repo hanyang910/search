@@ -204,6 +204,7 @@
 <script>
   const SHEET_ID_STATION = '1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq';
   const VERSION_URL = 'https://docs.google.com/spreadsheets/d/1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq/gviz/tq?tqx=out:csv&sheet=%E7%89%88%E6%9C%AC';
+  const PARKINGURL_CSV = 'https://docs.google.com/spreadsheets/d/1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq/gviz/tq?tqx=out:csv&sheet=%E9%BB%9E%E8%BB%8A%E4%BD%8D%E7%B6%B2%E5%9D%80';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','臨停費率(一般) 小時','臨停費率(一般) 上限'];
   const FUER_FIELD_MAP = {'時間戳記':'日期/時間','場地代號':'場代','場站名稱':'場站','區域':'地區'};
@@ -271,7 +272,7 @@
     document.getElementById('repairTabs').classList.toggle('show', mode==='repair');
     if (mode==='repair') { selectedRegion=new Set([DEFAULT_REGION]); } else { selectedRegion=new Set(); document.getElementById('regionFilter').classList.remove('show'); }
     resetResults();
-    if (mode==='station') { isCombined=false; loadSingleSheet(SHEET_ID_STATION,'總表',STATION_DEFAULT_COLS); loadStationVersion(); }
+    if (mode==='station') { isCombined=false; loadStationWithParking(STATION_DEFAULT_COLS); loadStationVersion(); }
     else {
       const firstTab=document.querySelector('.sheet-tab');
       document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.remove('active'));
@@ -431,6 +432,64 @@
     }catch(e){setStatus('❌ '+e.message,'error');}
   }
 
+  async function loadStationWithParking(defaultCols) {
+    setStatus('<span class="spinner"></span>載入中...', '');
+    try {
+      // 同時載入總表和點車位網址
+      const [stationText, parkingText] = await Promise.all([
+        fetchCSV(SHEET_ID_STATION, '總表'),
+        fetch(PARKINGURL_CSV).then(r => r.text())
+      ]);
+
+      // 解析總表
+      const stationRows = parseCSV(stationText);
+      if (!stationRows.length) { setStatus('❌ 試算表是空的', 'error'); return; }
+      const rh = stationRows[0].map(h => h.replace(/^"|"$/g, '').trim());
+      const vi = rh.map((h, i) => h ? i : -1).filter(i => i >= 0);
+      headers = vi.map(i => rh[i]);
+
+      // 解析點車位網址，建立場地代號 → 網址的對照表
+      const parkingRows = parseCSV(parkingText);
+      const parkingMap = {};
+      if (parkingRows.length > 1) {
+        const ph = parkingRows[0].map(h => h.replace(/^"|"$/g, '').trim());
+        const codeIdx = ph.findIndex(h => h.includes('場地代號'));
+        const urlIdx  = ph.findIndex(h => h.includes('網址') || h.includes('URL') || h.includes('url'));
+        if (codeIdx >= 0 && urlIdx >= 0) {
+          parkingRows.slice(1).forEach(r => {
+            const code = (r[codeIdx] || '').replace(/^"|"$/g, '').trim();
+            const url  = (r[urlIdx]  || '').replace(/^"|"$/g, '').trim();
+            if (code) parkingMap[code] = url;
+          });
+        }
+      }
+
+      // 合併資料，加入「點車位網址」欄位
+      if (!headers.includes('點車位網址')) headers.push('點車位網址');
+      allData = stationRows.slice(1).map(r => {
+        const obj = { __rowType: '' };
+        vi.forEach((colIdx, idx) => {
+          obj[headers[idx]] = (r[colIdx] || '').replace(/^"|"$/g, '').trim();
+        });
+        // 比對場地代號
+        const code = obj['場地代號'] || '';
+        obj['點車位網址'] = parkingMap[code] || '';
+        return obj;
+      });
+
+      const normalize = s => s.trim().replace(/[\s　 ]+/g, ' ');
+      activeHeaders = defaultCols.length > 0
+        ? new Set(headers.filter(h => defaultCols.some(d => normalize(h) === normalize(d))))
+        : new Set(headers);
+      if (activeHeaders.size === 0) activeHeaders = new Set(headers);
+
+      document.getElementById('legend').style.display = 'none';
+      finishLoad();
+    } catch(e) {
+      setStatus('❌ ' + e.message, 'error');
+    }
+  }
+
   async function loadStationVersion() {
     try {
       const res = await fetch(VERSION_URL);
@@ -475,7 +534,7 @@
     // 重新載入資料，完成後用原本的搜尋條件重新搜尋
     const kw = currentKw;
     if (currentMode==='station') {
-      await loadSingleSheet(SHEET_ID_STATION,'總表',STATION_DEFAULT_COLS);
+      await loadStationWithParking(STATION_DEFAULT_COLS);
     } else if (currentTabType==='single') {
       const activeTab = document.querySelector('.sheet-tab.active');
       if (activeTab) await loadSingleSheet(SHEET_ID_REPAIR, activeTab.dataset.sheet, []);
