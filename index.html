@@ -107,6 +107,8 @@
     .popup-content { font-size: 15px; color: #1a202c; line-height: 1.6; word-break: break-all; background: #f7fafc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; min-height: 48px; white-space: pre-wrap; }
     .popup-actions { display: flex; gap: 10px; justify-content: flex-end; }
     .btn-copy { background: #3182ce; color: white; padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; }
+    .btn-link { background: #38a169; color: white; padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-link:hover { background: #2f855a; }
     .btn-copy:hover { background: #2b6cb0; }
     .btn-copy.copied { background: #38a169; }
     .btn-close-popup { background: #f7fafc; color: #4a5568; padding: 8px 18px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; cursor: pointer; }
@@ -196,6 +198,7 @@
     <div class="popup-content" id="popupContent"></div>
     <div class="popup-actions">
       <button class="btn-close-popup" onclick="closePopupDirect()">關閉</button>
+      <a class="btn-link" id="linkBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none">直接連結</a>
       <button class="btn-copy" id="copyBtn" onclick="copyContent()">複製</button>
     </div>
   </div>
