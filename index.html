@@ -405,12 +405,30 @@
     const sheets=COMBINED_SHEETS[group]; const isFuer=group==='阜爾';
     try{
       const results=await Promise.all(sheets.map(s=>fetchCSV(SHEET_ID_REPAIR,s.name)));
+
+      // 第一步：先收集所有工作表的原始欄位名稱，建立「髒名稱→乾淨名稱」對照表
+      const allRawHeaders=new Set();
+      results.forEach(text=>{
+        const rows=parseCSV(text); if(!rows.length)return;
+        rows[0].forEach(h=>{ const c=h.replace(/^"|"$/g,'').trim(); if(c)allRawHeaders.add(c); });
+      });
+      // 短的欄位名稱優先（例如「日期/時間」比「日期/時間 2087/02/31」短）
+      const sortedHeaders=[...allRawHeaders].sort((a,b)=>a.length-b.length);
+      const headerNorm={};
+      allRawHeaders.forEach(h=>{
+        // 找看看有沒有更短的欄位名稱是這個欄位名稱的前綴（後接空格或換行）
+        const match=sortedHeaders.find(s=>s!==h&&(h.startsWith(s+' ')||h.startsWith(s+'
+')||h.startsWith(s+'　')));
+        headerNorm[h]=match||h;
+      });
+
+      // 第二步：用乾淨欄位名稱合併資料
       let mergedHeaders=[],mergedData=[];
       results.forEach((text,i)=>{
         const rows=parseCSV(text); if(!rows.length)return;
         const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
         const vi=rh.map((h,j)=>h?j:-1).filter(j=>j>=0);
-        const sh=vi.map(j=>rh[j]);
+        const sh=vi.map(j=>headerNorm[rh[j]]||rh[j]); // 使用乾淨欄位名稱
         sh.forEach(h=>{if(!mergedHeaders.includes(h))mergedHeaders.push(h);});
         const rowType=sheets[i].type;
         rows.slice(1).forEach(r=>{
