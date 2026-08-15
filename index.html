@@ -625,6 +625,15 @@
     document.getElementById('popupContent').textContent=content||'（空白）';
     document.getElementById('copyBtn').textContent='複製';
     document.getElementById('copyBtn').classList.remove('copied');
+    // 偵測是否為網址，顯示直接連結按鈕
+    const linkBtn=document.getElementById('linkBtn');
+    if(content && /^https?:\/\/.+/.test(content.trim())){
+      linkBtn.href=content.trim();
+      linkBtn.style.display='inline-flex';
+    } else {
+      linkBtn.style.display='none';
+      linkBtn.href='#';
+    }
     document.getElementById('popupOverlay').classList.add('show');
   }
   function closePopupDirect(){document.getElementById('popupOverlay').classList.remove('show');}
