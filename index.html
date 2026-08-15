@@ -386,8 +386,20 @@
       if(!rows.length){setStatus('❌ 試算表是空的','error');return;}
       const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
       const vi=rh.map((h,i)=>h?i:-1).filter(i=>i>=0);
-      headers=vi.map(i=>rh[i]);
-      allData=rows.slice(1).map(r=>headers.reduce((obj,h,idx)=>{obj[h]=(r[vi[idx]]||'').replace(/^"|"$/g,'').trim();obj['__rowType']='';return obj;},{}));
+      // 正規化欄位名稱：若欄位名稱是「日期/時間 2087/02/31」這種形式，自動截取前綴「日期/時間」
+      const rawHeaders=vi.map(i=>rh[i]);
+      const sorted=[...rawHeaders].sort((a,b)=>a.length-b.length);
+      const normMap={};
+      rawHeaders.forEach(h=>{
+        const match=sorted.find(s=>s!==h&&new RegExp('^'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[\\s　]').test(h));
+        normMap[h]=match||h;
+      });
+      headers=rawHeaders.map(h=>normMap[h]);
+      allData=rows.slice(1).map(r=>{
+        const obj={__rowType:''};
+        rawHeaders.forEach((rawH,idx)=>{obj[normMap[rawH]||rawH]=(r[vi[idx]]||'').replace(/^"|"$/g,'').trim();});
+        return obj;
+      });
       // 使用標準化比對，處理 Excel 欄位名稱可能有多餘空白或特殊字元
       const normalize = s => s.trim().replace(/[\s　 ]+/g, ' ');
       activeHeaders=defaultCols.length>0
