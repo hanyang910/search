@@ -423,10 +423,14 @@
       if(isFuer)Object.values(FUER_FIELD_MAP).forEach(d=>{if(!mergedHeaders.includes(d))mergedHeaders.unshift(d);});
       headers=mergedHeaders; allData=mergedData;
       if(isFuer){
+        // 阜爾：欄位名稱完全比對
         activeHeaders=new Set(headers.filter(h=>FUER_DEFAULT_COLS.includes(h)));
         if(activeHeaders.size===0)activeHeaders=new Set(headers);
       } else {
-        activeHeaders=new Set(headers.filter(h=>ZHONGKONG_DEFAULT_COLS.includes(h)));
+        // 中控：模糊比對，只要欄位名稱包含關鍵字即可
+        activeHeaders=new Set(headers.filter(h=>
+          ZHONGKONG_DEFAULT_COLS.some(d => h.includes(d) || d.includes(h.trim()))
+        ));
         if(activeHeaders.size===0)activeHeaders=new Set(headers);
       }
       document.getElementById('legend').style.display='flex';
