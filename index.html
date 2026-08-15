@@ -416,9 +416,8 @@
       const sortedHeaders=[...allRawHeaders].sort((a,b)=>a.length-b.length);
       const headerNorm={};
       allRawHeaders.forEach(h=>{
-        // 找看看有沒有更短的欄位名稱是這個欄位名稱的前綴（後接空格或換行）
-        const match=sortedHeaders.find(s=>s!==h&&(h.startsWith(s+' ')||h.startsWith(s+'
-')||h.startsWith(s+'　')));
+        // 找看看有沒有更短的欄位名稱是這個欄位名稱的前綴（後接空白）
+        const match=sortedHeaders.find(s=>s!==h&&new RegExp('^'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[\\s　]').test(h));
         headerNorm[h]=match||h;
       });
 
