@@ -93,6 +93,7 @@
     tbody tr.row-done    td { background: #bfdbfe; }
     tbody tr.row-history td { background: white; }
     tbody td { padding: 9px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #2d3748; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    tbody td.td-wide { max-width: 320px; }
     tbody tr:last-child td { border-bottom: none; }
     mark { background: #fde68a; color: #92400e; border-radius: 2px; padding: 0 2px; }
     .empty-state { text-align: center; padding: 40px; color: #a0aec0; }
@@ -223,6 +224,20 @@
   const REGION_COL = '地區';
   const STATION_COL = '場站';
   const REGION_SUFFIX = ['市','縣','區','鄉','鎮'];
+  // 報修系統已知的乾淨欄位名稱，用來識別「日期/時間 2087/02/31」這類帶範例的欄位名稱
+  const KNOWN_REPAIR_COLS = new Set([
+    'ID','狀態','回覆人','日期/時間','時間戳記','地區','區域','場代','場地代號',
+    '場站','場站名稱','問題分類','問題描述','回覆內容','回覆業主',
+    'PASS','PASS人','PASS備註','處理人','處理結果&備註','報修人','聯絡電話'
+  ]);
+  function cleanColName(h) {
+    const spaceIdx = h.indexOf(' ');
+    if (spaceIdx > 0) {
+      const prefix = h.substring(0, spaceIdx);
+      if (KNOWN_REPAIR_COLS.has(prefix)) return prefix;
+    }
+    return h;
+  }
 
   let currentMode='station', currentTabType='single', currentGroup='';
   let allData=[], headers=[], activeHeaders=new Set();
@@ -386,14 +401,10 @@
       if(!rows.length){setStatus('❌ 試算表是空的','error');return;}
       const rh=rows[0].map(h=>h.replace(/^"|"$/g,'').trim());
       const vi=rh.map((h,i)=>h?i:-1).filter(i=>i>=0);
-      // 正規化欄位名稱：若欄位名稱是「日期/時間 2087/02/31」這種形式，自動截取前綴「日期/時間」
+      // 正規化欄位名稱：「日期/時間 2087/02/31」→「日期/時間」
       const rawHeaders=vi.map(i=>rh[i]);
-      const sorted=[...rawHeaders].sort((a,b)=>a.length-b.length);
       const normMap={};
-      rawHeaders.forEach(h=>{
-        const match=sorted.find(s=>s!==h&&new RegExp('^'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[\\s　]').test(h));
-        normMap[h]=match||h;
-      });
+      rawHeaders.forEach(h=>{ normMap[h] = currentMode==='repair' ? cleanColName(h) : h; });
       headers=rawHeaders.map(h=>normMap[h]);
       allData=rows.slice(1).map(r=>{
         const obj={__rowType:''};
@@ -424,13 +435,9 @@
         const rows=parseCSV(text); if(!rows.length)return;
         rows[0].forEach(h=>{ const c=h.replace(/^"|"$/g,'').trim(); if(c)allRawHeaders.add(c); });
       });
-      // 短的欄位名稱優先（例如「日期/時間」比「日期/時間 2087/02/31」短）
-      const sortedHeaders=[...allRawHeaders].sort((a,b)=>a.length-b.length);
       const headerNorm={};
       allRawHeaders.forEach(h=>{
-        // 找看看有沒有更短的欄位名稱是這個欄位名稱的前綴（後接空白）
-        const match=sortedHeaders.find(s=>s!==h&&new RegExp('^'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[\\s　]').test(h));
-        headerNorm[h]=match||h;
+        headerNorm[h]=cleanColName(h);
       });
 
       // 第二步：用乾淨欄位名稱合併資料
@@ -625,7 +632,7 @@
       const tr=document.createElement('tr');
       const rt=r.__rowType;
       tr.classList.add(rt==='undone'?'row-undone':rt==='done'?'row-done':'row-history');
-      visibleHeaders.forEach(h=>{const td=document.createElement('td');const v=String(r[h]??'');td.dataset.label=h;td.dataset.value=v;td.innerHTML=highlight(v,currentKw);tr.appendChild(td);});
+      visibleHeaders.forEach(h=>{const td=document.createElement('td');const v=String(r[h]??'');td.dataset.label=h;td.dataset.value=v;td.innerHTML=highlight(v,currentKw);if(h==='問題描述')td.classList.add('td-wide');tr.appendChild(td);});
       tbody.appendChild(tr);
     });
     const table=document.createElement('table');
