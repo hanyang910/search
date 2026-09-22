@@ -207,8 +207,8 @@
 
 <script>
   const SHEET_ID_STATION = '1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq';
-  const VERSION_URL = 'https://docs.google.com/spreadsheets/d/1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq/gviz/tq?tqx=out:csv&sheet=%E7%89%88%E6%9C%AC';
-  const PARKINGURL_CSV = 'https://docs.google.com/spreadsheets/d/1ZCvWzS4JLg6FB8KQcqwtVXXrgYe2FUEq/gviz/tq?tqx=out:csv&sheet=%E9%BB%9E%E8%BB%8A%E4%BD%8D%E7%B6%B2%E5%9D%80';
+  const VERSION_URL = 'https://drive.google.com/uc?export=download&id=1ERsmRVI08tGg5Uk-iG8D7PVwXyaWYSjU';
+  const PARKINGURL_CSV = 'https://drive.google.com/uc?export=download&id=1gVM8oe84Cux3wLV9F2AKXQbItspq7fii';
   const SHEET_ID_REPAIR  = '1Lq0ZoG9s4iNqNeBJcpQGhjQV9ZqIBVeEqe9LcZWjkCI';
   const STATION_DEFAULT_COLS = ['公司','場地代號','縣市','區域','淡大名稱','場地地址','臨停費率(一般) 小時','臨停費率(一般) 上限'];
   const FUER_FIELD_MAP = {'時間戳記':'日期/時間','場地代號':'場代','場站名稱':'場站','區域':'地區'};
@@ -480,7 +480,7 @@
     try {
       // 同時載入總表和點車位網址
       const [stationText, parkingText] = await Promise.all([
-        fetchCSV(SHEET_ID_STATION, '總表'),
+        fetch('https://drive.google.com/uc?export=download&id=1zn8-bxBrjnxKanc4aT4xy16ocBDXI5h0').then(r => r.text()),
         fetch(PARKINGURL_CSV).then(r => r.text())
       ]);
 
